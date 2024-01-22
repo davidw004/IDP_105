@@ -26,12 +26,24 @@ void Line_Follower::go() {
         analogWrite(_PWM_R_EN, baseSpeedRight);
     }
     else if (_A1 == 1 && _A2 == 0){ //If left high and right low then change motor speed to turn left
-
+        //code to check duration and set weighting for left and right (fraction of speed increase)
+        analogWrite(_PWM_L_EN, baseSpeedLeft + _left_weight);
+        analogWrite(_PWM_R_EN, baseSpeedRight + _right_weight);
+    }
+    
+    else if (_A1 == 0 && _A2 == 1){ //If left high and right low then change motor speed to turn left
+        //code to check duration and set weighting for left and right (fraction of speed increase)
+        analogWrite(_PWM_L_EN, baseSpeedLeft + _left_weight);
+        analogWrite(_PWM_R_EN, baseSpeedRight + _right_weight);
     }
 
+    else if (_A1 == 1 && _A2 == 1){
+        //reached T junction, initiate turn
+        
+    }
+
+
     /*
-    if (_A_D_Scan == LOW)   // Analog Scan = LOW  
-    {
         _A0 = map(analogRead(A0), 0, 850, 0, (_MAX_PWM_SPEED * 0.7));
         _A1 = map(analogRead(A1), 0, 850, 0, (_MAX_PWM_SPEED * 0.3));
         _A2 = map(analogRead(A2), 0, 850, 0, (_MAX_PWM_SPEED * 0.3));
@@ -56,82 +68,6 @@ void Line_Follower::go() {
             analogWrite(_PWM_R_EN, _right_weight);
             analogWrite(_PWM_L_EN, _left_weight);
         }
-    }
-    else                     // Digital Scan = HIGH;
-    {
-        _Position = 0;
-        bitWrite(_Position, 0, digitalRead(A0));
-        bitWrite(_Position, 1, digitalRead(A1));
-        bitWrite(_Position, 2, digitalRead(A2));
-        bitWrite(_Position, 3, digitalRead(A3));
-        bitWrite(_Position, 4, digitalRead(A4));
-        if (_LineColor == HIGH)           // Black Line =LOW , White Line =HIGH;
-        {
-            _Position = ~_Position;
-            _Position = _Position & 31;
-        }
-
-        PORTB = _Position;
-        switch (_Position)
-        {
-        case 4:  //00100
-            analogWrite(_PWM_R_EN, _MAX_PWM_SPEED);
-            analogWrite(_PWM_L_EN, _MAX_PWM_SPEED);
-            break;
-        case 12: //01100 drift Right
-            analogWrite(_PWM_R_EN, (_MAX_PWM_SPEED * 4 / 5));
-            analogWrite(_PWM_L_EN, _MAX_PWM_SPEED);
-            break;
-        case 8: // 01000 more Right
-            analogWrite(_PWM_R_EN, (_MAX_PWM_SPEED * 3 / 5));
-            analogWrite(_PWM_L_EN, _MAX_PWM_SPEED);
-            break;
-        case 24: //11000 extra Right
-            analogWrite(_PWM_R_EN, (_MAX_PWM_SPEED * 2 / 5));
-            analogWrite(_PWM_L_EN, _MAX_PWM_SPEED);
-            break;
-        case 16: //10000 sharp Right
-            analogWrite(_PWM_R_EN, 0);
-            analogWrite(_PWM_L_EN, _MAX_PWM_SPEED);
-            break;
-        case 28: //11100 sharp Right
-            analogWrite(_PWM_R_EN, 0);
-            analogWrite(_PWM_L_EN, _MAX_PWM_SPEED);
-            break;
-        case 30: //11110 sharp Right
-            analogWrite(_PWM_R_EN, 0);
-            analogWrite(_PWM_L_EN, _MAX_PWM_SPEED);
-            break;
-        case 6:  //00110 drift Left
-            analogWrite(_PWM_R_EN, _MAX_PWM_SPEED);
-            analogWrite(_PWM_L_EN, (_MAX_PWM_SPEED * 4 / 5));
-            break;
-        case 2: // 00010 more Left
-            analogWrite(_PWM_R_EN, _MAX_PWM_SPEED);
-            analogWrite(_PWM_L_EN, (_MAX_PWM_SPEED * 3 / 5));
-            break;
-        case 3: // 00011 extra Left
-            analogWrite(_PWM_R_EN, _MAX_PWM_SPEED);
-            analogWrite(_PWM_L_EN, (_MAX_PWM_SPEED * 2 / 5));
-            break;
-        case 1: // 00001 sharp Left
-            analogWrite(_PWM_R_EN, _MAX_PWM_SPEED);
-            analogWrite(_PWM_L_EN, 0);
-            break;
-        case 7: // 00111 sharp Left
-            analogWrite(_PWM_R_EN, _MAX_PWM_SPEED);
-            analogWrite(_PWM_L_EN, 0);
-            break;
-        case 15: // 01111 sharp Left
-            analogWrite(_PWM_R_EN, _MAX_PWM_SPEED);
-            analogWrite(_PWM_L_EN, 0);
-            break;
-        default:
-            analogWrite(_PWM_R_EN, 0);
-            analogWrite(_PWM_L_EN, 0);
-            break;
-        }
-    }
     */
 }
 void Line_Follower::stop() {
