@@ -5,6 +5,7 @@ public:
     Line_Follower(bool LineColor, bool A_D_Scan, uint8_t PWM_R_EN, uint8_t PWM_L_EN, uint8_t MAX_PWM_SPEED); // :
     void  Go();
     void  Stop();
+    void leftTurn();
 private:
     bool _LineColor;
     bool _A_D_Scan;
