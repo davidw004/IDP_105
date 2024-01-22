@@ -15,10 +15,10 @@ Line_Follower::Line_Follower(uint8_t PWM_R_EN, uint8_t PWM_L_EN, uint8_t MAX_PWM
 
 void Line_Follower::go() {
     //Read input from sensors (not yet figured out what values are being returned yet)
-    _A0 = map(analogRead(A0), 0, 850, 0, (_MAX_PWM_SPEED * 0.7));
-    _A1 = map(analogRead(A1), 0, 850, 0, (_MAX_PWM_SPEED * 0.3));
-    _A2 = map(analogRead(A2), 0, 850, 0, (_MAX_PWM_SPEED * 0.3));
-    _A3 = map(analogRead(A3), 0, 850, 0, (_MAX_PWM_SPEED * 0.7));
+    _A0 = digitalRead(A0);
+    _A1 = digitalRead(A1);
+    _A2 = digitalRead(A2);
+    _A3 = digitalRead(A3);
     
     //If both A1 A2 black keep driving at maxspeed
     if (_A1 == 0 && _A2 == 0){
