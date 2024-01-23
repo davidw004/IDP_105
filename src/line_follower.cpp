@@ -20,56 +20,62 @@ void Line_Follower::go() {
     _A2 = digitalRead(A2);
     _A3 = digitalRead(A3);
     
+
+    if ((_A0 == 1 || _A3 == 1)){
+        //call left/right functioin depending on which value in array we are at and //increase array to show a junction has been reached
+        junction();
+    }
     //If both A1 A2 black keep driving at maxspeed
-    if (_A1 == 0 && _A2 == 0){
+    else if (_A1 == 0 && _A2 == 0){
+        baseSpeedLeft = _MAX_PWM_SPEED * 0.8;
         analogWrite(_PWM_L_EN, baseSpeedLeft);
         analogWrite(_PWM_R_EN, baseSpeedRight);
     }
     else if (_A1 == 1 && _A2 == 0){ //If left high and right low then change motor speed to turn left
         //code to check duration and set weighting for left and right (fraction of speed increase)
-        analogWrite(_PWM_L_EN, baseSpeedLeft + _left_weight);
-        analogWrite(_PWM_R_EN, baseSpeedRight + _right_weight);
+        baseSpeedLeft = _MAX_PWM_SPEED * 0.75 - _left_weight;
+        baseSpeedRight = _MAX_PWM_SPEED * 0.75 + _right_weight;
+        analogWrite(_PWM_L_EN, baseSpeedLeft);
+        analogWrite(_PWM_R_EN, baseSpeedRight);
     }
     
     else if (_A1 == 0 && _A2 == 1){ //If left high and right low then change motor speed to turn left
         //code to check duration and set weighting for left and right (fraction of speed increase)
-        analogWrite(_PWM_L_EN, baseSpeedLeft + _left_weight);
-        analogWrite(_PWM_R_EN, baseSpeedRight + _right_weight);
+        baseSpeedLeft = _MAX_PWM_SPEED * 0.75 + _left_weight;
+        baseSpeedRight = _MAX_PWM_SPEED * 0.75 - _right_weight;
+        analogWrite(_PWM_L_EN, baseSpeedLeft);
+        analogWrite(_PWM_R_EN, baseSpeedRight);
     }
 
     else if (_A1 == 1 && _A2 == 1){
         //reached T junction, initiate turn
         
     }
-
-
-    /*
-        _A0 = map(analogRead(A0), 0, 850, 0, (_MAX_PWM_SPEED * 0.7));
-        _A1 = map(analogRead(A1), 0, 850, 0, (_MAX_PWM_SPEED * 0.3));
-        _A2 = map(analogRead(A2), 0, 850, 0, (_MAX_PWM_SPEED * 0.3));
-        _A3 = map(analogRead(A3), 0, 850, 0, (_MAX_PWM_SPEED * 0.7));
-
-        _left_weight = _A0 + _A1;
-        _right_weight = _A3 + _A4;
-        _left_weight = constrain(_left_weight, 0, _MAX_PWM_SPEED);
-        _right_weight = constrain(_right_weight, 0, _MAX_PWM_SPEED);
-
-        // for sharp corners 
-        if (_left_weight > (_MAX_PWM_SPEED * 0.8)) _right_weight = _right_weight * 0.3;
-        if (_right_weight > (_MAX_PWM_SPEED * 0.8)) _left_weight = _left_weight * 0.3;
-
-        if (_LineColor == LOW) // Black Line =LOW 
-        {
-            analogWrite(_PWM_R_EN, (_MAX_PWM_SPEED - _right_weight));
-            analogWrite(_PWM_L_EN, (_MAX_PWM_SPEED - _left_weight));
-        }
-        else                // White Line =HIGH;
-        {
-            analogWrite(_PWM_R_EN, _right_weight);
-            analogWrite(_PWM_L_EN, _left_weight);
-        }
-    */
 }
+
+void Line_Follower::junction(){
+    /*if (this->array = left turn) {
+        //some function to determine baseSpeed
+        also stay in code until turtn complete so while loop??
+        analogWrite(_PWM_L_EN, 0);
+        analogWrite(_PWM_R_EN, baseSpeedRight);
+
+    else if (this->array = right turn) {
+        //some function to determine baseSpeed
+        analogWrite(_PWM_L_EN, baseSpeedLeft);
+        analogWrite(_PWM_R_EN, 0);
+
+        else if (this->array = straightforward) {
+        //some function to determine baseSpeed
+        while (_A0 == 1 || _A4 == 1)
+        analogWrite(_PWM_L_EN, baseSpeedLeft );
+        analogWrite(_PWM_R_EN, baseSpeedRight);
+    }*/
+    
+
+    //do not return to code unless passed turn for straight line 
+}
+
 void Line_Follower::stop() {
     analogWrite(_PWM_R_EN, 0);
     analogWrite(_PWM_L_EN, 0);
