@@ -15,9 +15,9 @@ Line_Follower::Line_Follower(uint8_t PWM_R_EN, uint8_t PWM_L_EN, uint8_t MAX_PWM
 
 void Line_Follower::go() {
     //Read input from sensors (not yet figured out what values are being returned yet)
-    _A0 = digitalRead(A0);
-    _A1 = digitalRead(A1);
-    _A2 = digitalRead(A2);
+    _A0 = digitalRead(A0);  
+    _A1 = digitalRead(A1); //Left Sensor In 
+    _A2 = digitalRead(A2); //Right Sensor In
     _A3 = digitalRead(A3);
     
 
