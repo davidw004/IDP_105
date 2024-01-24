@@ -1,9 +1,5 @@
 #include <Arduino.h>
-
-#define LINESENSOR1 2
-#define LINESENSOR2 3
-#define LINESENSOR3 4
-#define LINESENSOR4 5
+#include "ArduinoPinout.h"
 
 void SetupLineSensor(int sensor_pin);
 void SetupLineSensors();
