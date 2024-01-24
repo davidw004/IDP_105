@@ -1,12 +1,11 @@
 #include "Arduino.h"
 #include "Servo.h"
 
-void SetupServo(int servo_pin);
-
 class ServoIDP
 {
     public:
-    void ServoIDP(int servo_pin);
+    ServoIDP(int servo_pin);
+    void Setup();
     void SetAngle(int degrees);
     void ChangeAngle(int deltaDegrees);
     void Update();
@@ -14,6 +13,7 @@ class ServoIDP
 
     int pos;
     private:
+    int pin;
     Servo thisServo;
 
-}
+};

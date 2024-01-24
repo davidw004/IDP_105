@@ -1,21 +1,20 @@
-#include "LineSensor.h"
+//#include "LineSensor.h"
+#include "ArduinoPinout.h"
+#include "ServoIDP.h"
 #include <Arduino.h>
+
+ServoIDP testServo = ServoIDP(SERVO1);
 
 void setup()
 {
     Serial.begin(9600); // Init the serial port
-    SetupLineSensor(LINESENSOR1);
+    testServo.Setup();
+    delay(100);
 }
 
 void loop()
 {
-    if (ReadLineSensor(LINESENSOR1))
-    {
-        Serial.print("White Detected\n");
-    }
-    else
-    {
-        Serial.print("No White Detected\n");
-    }
-    delay(500);
+    testServo.turnSmoothly(180, 10);
+    testServo.turnSmoothly(-180, 10);
+    delay(100);
 }
