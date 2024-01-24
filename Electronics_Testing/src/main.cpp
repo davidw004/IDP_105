@@ -4,11 +4,18 @@
 void setup()
 {
     Serial.begin(9600); // Init the serial port
-    SetupSensor(SENSOR1PIN);
+    SetupLineSensor(LINESENSOR1);
 }
 
 void loop()
 {
-    Serial.print(ReadSensor(SENSOR1PIN));
-    delay(100);
+    if (ReadLineSensor(LINESENSOR1))
+    {
+        Serial.print("White Detected\n");
+    }
+    else
+    {
+        Serial.print("No White Detected\n");
+    }
+    delay(500);
 }

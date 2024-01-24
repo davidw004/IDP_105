@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "Line_Follower.h"
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>

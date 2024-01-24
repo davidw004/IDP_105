@@ -1,6 +1,11 @@
 #include <Arduino.h>
 
-#define SENSOR1PIN 2
+#define LINESENSOR1 2
+#define LINESENSOR2 3
+#define LINESENSOR3 4
+#define LINESENSOR4 5
 
-void SetupSensor(int sensor_pin);
-int ReadSensor(int sensor_pin);
+void SetupLineSensor(int sensor_pin);
+void SetupLineSensors();
+int ReadLineSensorNum(int sensor_pin);
+bool ReadLineSensor(int sensor_pin);
