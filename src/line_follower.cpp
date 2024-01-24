@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "Line_Follower.h"
 Line_Follower::Line_Follower(uint8_t PWM_R_EN, uint8_t PWM_L_EN, uint8_t MAX_PWM_SPEED)
 {
