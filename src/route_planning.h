@@ -13,4 +13,6 @@ struct Routes{
     Decision routeTwoGreen[4] = {STRAIGHT, RIGHT, STRAIGHT, RIGHT};
     Decision returnTwoGreen[4] = {LEFT, STRAIGHT, LEFT, STRAIGHT};
     Decision returnTwoRed[3] = {RIGHT, RIGHT, STRAIGHT};
+
+    
 };
