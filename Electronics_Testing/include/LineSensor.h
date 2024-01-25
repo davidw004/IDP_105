@@ -1,7 +1,13 @@
 #include <Arduino.h>
 #include "ArduinoPinout.h"
 
-void SetupLineSensor(int sensor_pin);
-void SetupLineSensors();
-int ReadLineSensorNum(int sensor_pin);
-bool ReadLineSensor(int sensor_pin);
+class LineSensor
+{
+    public:
+    LineSensor(int sensor_pin);
+    void Setup();
+    bool White();
+
+    private:
+    int pin;
+};

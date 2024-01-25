@@ -1,18 +1,5 @@
 #include "LineSensor.h"
 
-void SetupLineSensor(int sensor_pin)
-{
-    pinMode(sensor_pin, INPUT); // declare LED as output
-}
-
-void SetupLineSensors()
-{
-    SetupLineSensor(LINESENSOR1);
-    SetupLineSensor(LINESENSOR2);
-    SetupLineSensor(LINESENSOR3);
-    SetupLineSensor(LINESENSOR4);
-}
-
 int ReadLineSensorNum(int sensor_pin)
 {
     return digitalRead(sensor_pin);
@@ -21,4 +8,15 @@ int ReadLineSensorNum(int sensor_pin)
 bool ReadLineSensor(int sensor_pin)
 {
     return ( ReadLineSensorNum(sensor_pin) == 1 );
+}
+
+LineSensor::LineSensor(int sensor_pin)
+    :
+    pin(sensor_pin)
+{
+}
+
+void LineSensor::Setup()
+{
+    pinMode(pin, INPUT); // declare LED as output
 }

@@ -4,3 +4,5 @@
 #define LINESENSOR4 5
 #define SERVO1 6
 #define SERVO2 7
+#define ULTRASONIC A0
+#define BUTTON1 13

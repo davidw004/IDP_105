@@ -5,11 +5,11 @@
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 Adafruit_DCMotor *myMotor = AFMS.getMotor(1);
 
-void setup() {
+/*void setup() {
   AFMS.begin();
   myMotor->setSpeed(150);
 }
 
 void loop() {
   myMotor->run(FORWARD);
-}
+}*/
