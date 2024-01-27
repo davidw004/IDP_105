@@ -16,62 +16,59 @@ Line_Follower::Line_Follower()
     Adafruit_DCMotor *rightMotor = AFMS.getMotor(2);
     // Select which 'port' M1, M2, M3 or M4. In this case, M1
     AFMS.begin();
-    leftMotor->setSpeed(150);
-    rightMotor->setSpeed(150);
+    leftMotor->setSpeed(baseSpeedLeft);
+    rightMotor->setSpeed(baseSpeedRight);
     leftMotor->run(FORWARD);
     rightMotor->run(FORWARD);
 }
 
 void Line_Follower::go() {
     //Read input from sensors (not yet figured out what values are being returned yet)
-    //_A0 = digitalRead(LINESENSOR1);
-    _A1 = digitalRead(LINESENSOR2);
-    _A2 = digitalRead(LINESENSOR3);
-    //_A3 = digitalRead(LINESENSOR4);
+    _extremeLeftReading = digitalRead(LINESENSOR1);
+    _leftReading = digitalRead(LINESENSOR2);
+    _rightReading = digitalRead(LINESENSOR3);
+    _extremeRightReading = digitalRead(LINESENSOR4);
 
-    /*if ((_A0 == 1 || _A3 == 1)){
+    if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
         //call left/right functioin depending on which value in array we are at and //increase array to show a junction has been reached
         junction();
-    }*/
-    //If both A1 A2 black keep driving at maxspeed
-    if (_A1 == 0 && _A2 == 0){
-        leftMotor -> setSpeed(150);
-        rightMotor -> setSpeed(150);
     }
-    else if (_A1 == 1 && _A2 == 0){ //If left high and right low then change motor speed to turn left
+    //If both A1 A2 black keep driving at maxspeed
+    if (_leftReading == 0 && _rightReading == 0){
+        leftMotor -> setSpeed(baseSpeedLeft);
+        rightMotor -> setSpeed(baseSpeedRight);
+    }
+    else if (_leftReading == 1 && _rightReading == 0){ //If left high and right low then change motor speed to turn left
         //code to check duration and set weighting for left and right (fraction of speed increase)
-        rightMotor -> setSpeed(200);
-        leftMotor -> setSpeed(100);
+        leftMotor -> setSpeed(0.8 * baseSpeedRight);
+        rightMotor -> setSpeed(1.2 * baseSpeedRight);
     }
     
-    else if (_A1 == 0 && _A2 == 1){ //If left high and right low then change motor speed to turn left
+    else if (_leftReading == 0 && _rightReading == 1){ //If left high and right low then change motor speed to turn left
         //code to check duration and set weighting for left and right (fraction of speed increase)
-        rightMotor -> setSpeed(200);
-        leftMotor -> setSpeed(100);
+        leftMotor -> setSpeed(1.2 * baseSpeedRight);
+        rightMotor -> setSpeed(0.8 * baseSpeedRight);
     }
 }
 
 void Line_Follower::junction(){
-    /*if (this->array = left turn) {
-        //some function to determine baseSpeed
-        also stay in code until turtn complete so while loop??
-        analogWrite(_PWM_L_EN, 0);
-        analogWrite(_PWM_R_EN, baseSpeedRight);
+    if (currentRoute[pos] == LEFT) //Current syntax needs updating but i think this should work
+    { 
+            pos+=1;
+    }
 
-    else if (this->array = right turn) {
-        //some function to determine baseSpeed
-        analogWrite(_PWM_L_EN, baseSpeedLeft);
-        analogWrite(_PWM_R_EN, 0);
+    else if (currentRoute[pos] == RIGHT)
+    { 
+        //
+    }
 
-        else if (this->array = straightforward) {
-        //some function to determine baseSpeed
-        while (_A0 == 1 || _A4 == 1)
-        analogWrite(_PWM_L_EN, baseSpeedLeft );
-        analogWrite(_PWM_R_EN, baseSpeedRight);
-    }*/
-    
+    else if (currentRoute[pos] == STRAIGHT)
+    {
+        //Wait certain duration while turn occurs to prevent double detection
+    }
 
-    //do not return to code unless passed turn for straight line 
+    //If reached end of array, call pick up / detect cube function
+    //Cube_Retrieval::pickupCube{};
 }
 
 void Line_Follower::stop() {

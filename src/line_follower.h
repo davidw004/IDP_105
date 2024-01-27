@@ -4,23 +4,26 @@
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 #include <SPI.h>
+#include "route_planning.h"
+
 class Line_Follower {
     public:
-        Line_Follower(); // :
+        Line_Follower();
         void go();
         void stop();
         void junction();
 
     private:
-        uint8_t _A0, _A1, _A2, _A3;
-        uint8_t _PWM_R_EN, _PWM_L_EN;
-        uint8_t _MAX_PWM_SPEED;
+        uint8_t _extremeLeftReading, _leftReading, _rightReading, _extremeRightReading;
         uint8_t _left_weight;
         uint8_t _right_weight;
-        uint8_t maxSpeedLeft = 150;
-        uint8_t maxSpeedRight = 150;
-        uint8_t baseSpeedLeft = 100;
-        uint8_t baseSpeedRight = 100;
+        uint8_t maxSpeedLeft = 200;
+        uint8_t maxSpeedRight = 200;
+        uint8_t baseSpeedLeft = 150;
+        uint8_t baseSpeedRight = 150;
+        uint8_t blocksCollected = 0;
         Adafruit_DCMotor *leftMotor;
         Adafruit_DCMotor *rightMotor;
+        Decision *currentRoute = Routes::routeOne;
+        uint8_t pos = 0;
 };

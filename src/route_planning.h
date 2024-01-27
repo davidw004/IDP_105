@@ -1,18 +1,31 @@
 #pragma once
 #include "Arduino.h"
 
-enum Decision{STRAIGHT, LEFT, RIGHT};
-struct Routes{
-    //Block 1
-    Decision routeOne[2] = {LEFT,RIGHT};
-    Decision returnOneGreen[2] = {RIGHT, LEFT};
-    Decision returnOneRed[3] = {LEFT, STRAIGHT, RIGHT};
 
-    //Block 2
-    Decision routeTwoRed[3] = {STRAIGHT, LEFT, LEFT};
-    Decision routeTwoGreen[4] = {STRAIGHT, RIGHT, STRAIGHT, RIGHT};
-    Decision returnTwoGreen[4] = {LEFT, STRAIGHT, LEFT, STRAIGHT};
-    Decision returnTwoRed[3] = {RIGHT, RIGHT, STRAIGHT};
 
-    
+enum Decision{STRAIGHT, LEFT, RIGHT, NULL_DECISION};
+
+/*
+/struct Route {
+    Decision* decisions;  // Adjust the size based on your maximum expected decisions
+    size_t numDecisions;
 };
+*/
+namespace Routes {
+    // Block 1
+    Decision routeOne[MAX_DECISIONS] = {LEFT, RIGHT, NULL_DECISION, NULL_DECISION};
+    Decision returnOneGreen[MAX_DECISIONS] = {RIGHT, LEFT, NULL_DECISION, NULL_DECISION};
+    Decision returnOneRed[MAX_DECISIONS] = {LEFT, STRAIGHT, RIGHT, NULL_DECISION};
+
+    // Block 2
+    Decision routeTwoRed[MAX_DECISIONS] = {STRAIGHT, LEFT, LEFT, NULL_DECISION};
+    Decision routeTwoGreen[MAX_DECISIONS] = {STRAIGHT, RIGHT, STRAIGHT, RIGHT};
+    Decision returnTwoGreen[MAX_DECISIONS] = {LEFT, STRAIGHT, LEFT, STRAIGHT};
+    Decision returnTwoRed[MAX_DECISIONS] = {RIGHT, RIGHT, STRAIGHT, NULL_DECISION};
+};
+
+//malloc
+//free
+
+// identify max length
+// decisions to an array of max length, fill remaining gaps with NULL
