@@ -4,11 +4,11 @@
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 #include <SPI.h>
-#include "route_planning.h"
-
+//#include "route_planning.h"
 class Line_Follower {
     public:
         Line_Follower();
+        void setup();
         void go();
         void stop();
         void junction();
@@ -22,8 +22,8 @@ class Line_Follower {
         uint8_t baseSpeedLeft = 150;
         uint8_t baseSpeedRight = 150;
         uint8_t blocksCollected = 0;
-        Adafruit_DCMotor *leftMotor;
-        Adafruit_DCMotor *rightMotor;
-        Decision *currentRoute = Routes::routeOne;
-        uint8_t pos = 0;
+        Adafruit_DCMotor *_leftMotor;
+        Adafruit_DCMotor *_rightMotor;
+        //Decision *currentRoute = Routes::routeOne;
+        //uint8_t pos = 0;
 };

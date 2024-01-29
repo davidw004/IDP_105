@@ -3,9 +3,13 @@
 #include <SPI.h>
 
 Line_Follower robot;
+//Line_Follower robot;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  Serial.print("Setup called");
+  robot.setup();
+
 }
 
 void loop() {

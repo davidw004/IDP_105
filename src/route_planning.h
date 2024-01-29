@@ -9,6 +9,7 @@ enum Decision{STRAIGHT, LEFT, RIGHT, NULL_DECISION};
     size_t numDecisions;
 };
 */
+/*
 namespace Routes {
     // Block 1
     Decision routeOne[MAX_DECISIONS] = {LEFT, RIGHT, NULL_DECISION, NULL_DECISION};
@@ -21,7 +22,7 @@ namespace Routes {
     Decision returnTwoGreen[MAX_DECISIONS] = {LEFT, STRAIGHT, LEFT, STRAIGHT};
     Decision returnTwoRed[MAX_DECISIONS] = {RIGHT, RIGHT, STRAIGHT, NULL_DECISION};
 };
-
+*/
 //malloc
 //free
 
