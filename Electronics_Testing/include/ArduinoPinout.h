@@ -5,4 +5,8 @@
 #define SERVO1 6
 #define SERVO2 7
 #define ULTRASONIC A0
+#define LED1 9
+#define LED2 10
+#define SWITCH1 11
+#define SWITCH2 12
 #define BUTTON1 13
