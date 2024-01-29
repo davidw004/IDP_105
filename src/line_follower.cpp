@@ -18,21 +18,22 @@ Line_Follower::Line_Follower()
     AFMS.begin();
     leftMotor->setSpeed(baseSpeedLeft);
     rightMotor->setSpeed(baseSpeedRight);
-    leftMotor->run(FORWARD);
-    rightMotor->run(FORWARD);
 }
 
 void Line_Follower::go() {
     //Read input from sensors (not yet figured out what values are being returned yet)
-    _extremeLeftReading = digitalRead(LINESENSOR1);
+    //_extremeLeftReading = digitalRead(LINESENSOR1);
     _leftReading = digitalRead(LINESENSOR2);
     _rightReading = digitalRead(LINESENSOR3);
-    _extremeRightReading = digitalRead(LINESENSOR4);
-
-    if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
+    //_extremeRightReading = digitalRead(LINESENSOR4);
+    
+    leftMotor->run(FORWARD);
+    rightMotor->run(FORWARD);
+    
+    /*if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
         //call left/right functioin depending on which value in array we are at and //increase array to show a junction has been reached
         junction();
-    }
+    }*/
     //If both A1 A2 black keep driving at maxspeed
     if (_leftReading == 0 && _rightReading == 0){
         leftMotor -> setSpeed(baseSpeedLeft);
