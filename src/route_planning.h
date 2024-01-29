@@ -1,8 +1,6 @@
 #pragma once
 #include "Arduino.h"
 
-
-
 enum Decision{STRAIGHT, LEFT, RIGHT, NULL_DECISION};
 
 /*
@@ -29,3 +27,4 @@ namespace Routes {
 
 // identify max length
 // decisions to an array of max length, fill remaining gaps with NULL
+
