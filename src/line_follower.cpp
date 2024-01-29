@@ -52,7 +52,7 @@ void Line_Follower::go() {
     }
 }
 
-void Line_Follower::junction(){
+/*void Line_Follower::junction(){
     if (currentRoute[pos] == LEFT) //Current syntax needs updating but i think this should work
     { 
             pos+=1;
@@ -71,6 +71,7 @@ void Line_Follower::junction(){
     //If reached end of array, call pick up / detect cube function
     //Cube_Retrieval::pickupCube{};
 }
+*/
 
 void Line_Follower::stop() {
     rightMotor -> setSpeed(0);
