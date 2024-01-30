@@ -4,6 +4,13 @@
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 Line_Follower::Line_Follower()
 {
+    maxSpeedLeft = 200;
+    maxSpeedRight = 200;
+    baseSpeedLeft = 150;
+    baseSpeedRight = 150;
+    blocksCollected = 0;
+    pos = 0;
+    _currentRoute = Routes::routeOne;
 }
 
 void Line_Follower::setup()
@@ -19,8 +26,6 @@ void Line_Follower::setup()
 
     _leftMotor->setSpeed(baseSpeedLeft);
     _rightMotor->setSpeed(baseSpeedRight);
-    _leftMotor->run(BACKWARD);
-    _rightMotor->run(BACKWARD);
 }
 
 void Line_Follower::go() {
@@ -35,6 +40,9 @@ void Line_Follower::go() {
         //call left/right functioin depending on which value in array we are at and //increase array to show a junction has been reached
         junction();
     }*/
+    _leftMotor->run(BACKWARD); //motors are connected in reverse
+    _rightMotor->run(BACKWARD); //motors are connected in reverse
+
     //If both A1 A2 black keep driving at maxspeed
     if (_leftReading == 0 && _rightReading == 0){
         _leftMotor -> setSpeed(baseSpeedLeft);
@@ -42,37 +50,76 @@ void Line_Follower::go() {
     }
     else if (_leftReading == 1 && _rightReading == 0){ //If left high and right low then change motor speed to turn left
         //code to check duration and set weighting for left and right (fraction of speed increase)
-        _leftMotor -> setSpeed(0.6 * baseSpeedRight);
+        _leftMotor -> setSpeed(0);
         _rightMotor -> setSpeed(1.4 * baseSpeedRight);
     }
     
     else if (_leftReading == 0 && _rightReading == 1){ //If left high and right low then change motor speed to turn left
         //code to check duration and set weighting for left and right (fraction of speed increase)
-        _leftMotor -> setSpeed(1.4 * baseSpeedRight);
-        _rightMotor -> setSpeed(0.6 * baseSpeedRight);
+        _leftMotor -> setSpeed(1.4 * baseSpeedLeft);
+        _rightMotor -> setSpeed(0);
     }
 }
 
-/*void Line_Follower::junction(){
-    if (currentRoute[pos] == LEFT) //Current syntax needs updating but i think this should work
-    { 
-            pos+=1;
-    }
 
-    else if (currentRoute[pos] == RIGHT)
-    { 
-        //
+void Line_Follower::junction(){
+    switch (_currentRoute[pos])
+    {  
+        case LEFT:
+        {
+            //Turn left code
+            _leftMotor -> setSpeed(baseSpeedLeft);
+            _rightMotor -> setSpeed(baseSpeedRight);
+            _leftMotor->run(BACKWARD);  // Replace if needed
+            _rightMotor->run(FORWARD);
+            //wait duration of time
+            delay(1000);
+            pos++;
+            break;
+        }
+        case RIGHT:
+        {
+            //Turn right code
+            _leftMotor -> setSpeed(baseSpeedLeft);
+            _rightMotor -> setSpeed(baseSpeedRight);
+            _leftMotor->run(BACKWARD);  // Replace if needed
+            _rightMotor->run(FORWARD);
+            //wait duration of time
+            delay(1000);
+            pos++;
+            break;
+        }
+        case STRAIGHT:
+        {
+            //Continue straight (prevent double detection)
+            _leftMotor -> setSpeed(baseSpeedLeft);
+            _rightMotor -> setSpeed(baseSpeedRight);
+            _leftMotor->run(BACKWARD);  // Replace if needed
+            _rightMotor->run(BACKWARD);
+            delay(1000);
+            pos++;
+            break;
+        }
+        default:{
+            break;
+        }
     }
-
-    else if (currentRoute[pos] == STRAIGHT)
-    {
-        //Wait certain duration while turn occurs to prevent double detection
+        switch(_currentRoute[pos]){
+        case BLOCK:
+        {
+            //Collect block
+            //Detect block and select route home
+            //next array
+            break;
+        }
+            case HOME:
+        {
+            //Drop off cube
+            //next array
+            break;
+        }
     }
-
-    //If reached end of array, call pick up / detect cube function
-    //Cube_Retrieval::pickupCube{};
 }
-*/
 
 void Line_Follower::stop() {
     _rightMotor -> setSpeed(0);
