@@ -9,6 +9,7 @@ void setup() {
   Serial.begin(9600);
   Serial.print("Setup called");
   robot.setup();
+  robot.exitbox();
 
 }
 

@@ -28,34 +28,48 @@ void Line_Follower::setup()
     _rightMotor->setSpeed(baseSpeedRight);
 }
 
+void Line_Follower::exitbox(){
+    //Position box physically in the middle of start
+    
+    //Run motors forwards
+    _leftMotor->run(FORWARD); //motors are connected in reverse
+    _rightMotor->run(FORWARD); //motors are connected in reverse
+
+    //Wait until exited box, ie central line sensors are past the white line
+    delay(1000); //Fine tune duration
+    _leftMotor->run(RELEASE);
+    _rightMotor->run(RELEASE); 
+
+}
+
 void Line_Follower::go() {
+    Serial.print("Running");
+
     //Read input from sensors (not yet figured out what values are being returned yet)
     //_extremeLeftReading = digitalRead(LINESENSOR1);
-    Serial.print("Running");
     _leftReading = digitalRead(LINESENSOR2);
     _rightReading = digitalRead(LINESENSOR3);
     //_extremeRightReading = digitalRead(LINESENSOR4);
     
-    /*if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
-        //call left/right functioin depending on which value in array we are at and //increase array to show a junction has been reached
-        junction();
-    }*/
-    _leftMotor->run(BACKWARD); //motors are connected in reverse
-    _rightMotor->run(BACKWARD); //motors are connected in reverse
+    //Run motors forwards
+    _leftMotor->run(FORWARD); //motors are connected in reverse
+    _rightMotor->run(FORWARD); //motors are connected in reverse
 
-    //If both A1 A2 black keep driving at maxspeed
+    //if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
+    //    junction();
+    //}
+
+    //If both middle sensors black keep driving at maxspeed
     if (_leftReading == 0 && _rightReading == 0){
-        _leftMotor -> setSpeed(baseSpeedLeft);
-        _rightMotor -> setSpeed(baseSpeedRight);
+        _leftMotor -> setSpeed(maxSpeedLeft);
+        _rightMotor -> setSpeed(maxSpeedRight);
     }
     else if (_leftReading == 1 && _rightReading == 0){ //If left high and right low then change motor speed to turn left
-        //code to check duration and set weighting for left and right (fraction of speed increase)
         _leftMotor -> setSpeed(0);
         _rightMotor -> setSpeed(1.4 * baseSpeedRight);
     }
     
     else if (_leftReading == 0 && _rightReading == 1){ //If left high and right low then change motor speed to turn left
-        //code to check duration and set weighting for left and right (fraction of speed increase)
         _leftMotor -> setSpeed(1.4 * baseSpeedLeft);
         _rightMotor -> setSpeed(0);
     }
@@ -63,15 +77,14 @@ void Line_Follower::go() {
 
 
 void Line_Follower::junction(){
-    switch (_currentRoute[pos])
-    {  
+    /*switch (_currentRoute[pos]){  
         case LEFT:
         {
             //Turn left code
             _leftMotor -> setSpeed(baseSpeedLeft);
             _rightMotor -> setSpeed(baseSpeedRight);
             _leftMotor->run(BACKWARD);  // Replace if needed
-            _rightMotor->run(FORWARD);
+            _rightMotor->run(FORWARD);  // Replace if needed
             //wait duration of time
             delay(1000);
             pos++;
@@ -110,15 +123,22 @@ void Line_Follower::junction(){
             //Collect block
             //Detect block and select route home
             //next array
+            blocksCollected++;
+            //If block soft and blocks selected == 1,2 etc select route home
             break;
         }
-            case HOME:
+        case HOME:
         {
             //Drop off cube
             //next array
+            //If blocksCollected = 1,2 etc select route to next block
+            //Spin 180 to begin next path
             break;
         }
-    }
+        default:{
+            break;
+        }
+    }*/
 }
 
 void Line_Follower::stop() {
