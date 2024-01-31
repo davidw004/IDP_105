@@ -24,8 +24,8 @@ void ServoIDP::ChangeAngle(int deltaDegrees)
 
 void ServoIDP::Update()
 {
-    if (pos > 360) { pos -= 360; }
-    if (pos < 0) { pos += 360; }
+    if (pos > 180) { pos = 180; }
+    if (pos < 0) { pos = 0; }
     thisServo.write(pos);
 }
 

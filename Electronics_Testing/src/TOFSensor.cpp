@@ -11,12 +11,12 @@ void TOFSensor::Setup()
     //Set I2C sub-device address
     sensor.begin(0x50);
     //Set to Back-to-back mode and high precision mode
-    sensor.setMode(sensor.eContinuous,sensor.eHigh);
+    sensor.setMode(sensor.eContinuous, sensor.eHigh);
     //Laser rangefinder begins to work
     sensor.start();
 }
 
 int TOFSensor::GetDistance()
 {
-    return sensor.getDistance();
+    return sensor.getDistance() / 10; // Sensor works in mm while Ultrasound works in cm
 }
