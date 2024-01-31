@@ -10,6 +10,9 @@ Line_Follower::Line_Follower()
     baseSpeedRight = 150;
     blocksCollected = 0;
     pos = 0;
+    turnDelay = 3000;
+    continueDelay = 1500;
+    isReturningCube = false;
     _currentRoute = Routes::routeOne;
 }
 
@@ -36,7 +39,7 @@ void Line_Follower::exitbox(){
     _rightMotor->run(FORWARD); //motors are connected in reverse
 
     //Wait until exited box, ie central line sensors are past the white line
-    delay(1000); //Fine tune duration
+    delay(2000); //Fine tune duration
     _leftMotor->run(RELEASE);
     _rightMotor->run(RELEASE); 
 
@@ -55,10 +58,19 @@ void Line_Follower::go() {
     _leftMotor->run(FORWARD); //motors are connected in reverse
     _rightMotor->run(FORWARD); //motors are connected in reverse
 
-    //if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
-    //    junction();
-    //}
+    /*if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
 
+        if (isReturningCube == false){
+        junction();
+        }
+        else if ((isReturningCube == true)){
+        //Drop off cube code;
+        isReturningCube = false;
+        return;
+        }
+    }
+    */
+   
     //If both middle sensors black keep driving at maxspeed
     if (_leftReading == 0 && _rightReading == 0){
         _leftMotor -> setSpeed(maxSpeedLeft);
@@ -77,28 +89,28 @@ void Line_Follower::go() {
 
 
 void Line_Follower::junction(){
-    /*switch (_currentRoute[pos]){  
+    switch (_currentRoute[pos]){  
         case LEFT:
         {
             //Turn left code
             _leftMotor -> setSpeed(baseSpeedLeft);
-            _rightMotor -> setSpeed(baseSpeedRight);
-            _leftMotor->run(BACKWARD);  // Replace if needed
-            _rightMotor->run(FORWARD);  // Replace if needed
+            _rightMotor -> setSpeed(0.5 * baseSpeedRight);
+            _leftMotor->run(FORWARD);  // Replace if needed
+            _rightMotor->run(BACKWARD);  // Replace if needed
             //wait duration of time
-            delay(1000);
+            delay(turnDelay);
             pos++;
             break;
         }
         case RIGHT:
         {
             //Turn right code
-            _leftMotor -> setSpeed(baseSpeedLeft);
+            _leftMotor -> setSpeed(0.5 * baseSpeedLeft);
             _rightMotor -> setSpeed(baseSpeedRight);
             _leftMotor->run(BACKWARD);  // Replace if needed
             _rightMotor->run(FORWARD);
             //wait duration of time
-            delay(1000);
+            delay(turnDelay);
             pos++;
             break;
         }
@@ -107,9 +119,9 @@ void Line_Follower::junction(){
             //Continue straight (prevent double detection)
             _leftMotor -> setSpeed(baseSpeedLeft);
             _rightMotor -> setSpeed(baseSpeedRight);
-            _leftMotor->run(BACKWARD);  // Replace if needed
-            _rightMotor->run(BACKWARD);
-            delay(1000);
+            _leftMotor->run(FORWARD);  // Replace if needed
+            _rightMotor->run(FORWARD);
+            delay(continueDelay);
             pos++;
             break;
         }
@@ -120,25 +132,41 @@ void Line_Follower::junction(){
         switch(_currentRoute[pos]){
         case BLOCK:
         {
-            //Collect block
+            //Collect block (call function as friend function)
+            //collectBlock();
+
             //Detect block and select route home
-            //next array
+
             blocksCollected++;
-            //If block soft and blocks selected == 1,2 etc select route home
+            //If return value from function is hard/soft && blocksCollected switch case then select route home
             break;
         }
         case HOME:
         {
-            //Drop off cube
-            //next array
-            //If blocksCollected = 1,2 etc select route to next block
+            isReturningCube = true;
+            //Start timer
+            startTime = millis();
+            // Continue driving until 3 seconds elapsed
+            while (isReturningCube == true){
+                go();
+            }
+            
+
+            //Drop off cube code (include travel certain duration)
             //Spin 180 to begin next path
+            _leftMotor -> setSpeed(baseSpeedLeft);
+            _rightMotor -> setSpeed(baseSpeedRight);
+            _leftMotor->run(BACKWARD);  // Replace if needed
+            _rightMotor->run(FORWARD);
+            //wait duration of time
+            delay(4000);
+            //If blocksCollected = 1,2 etc select route to next block
             break;
         }
         default:{
             break;
         }
-    }*/
+    }
 }
 
 void Line_Follower::stop() {

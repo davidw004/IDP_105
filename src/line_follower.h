@@ -5,6 +5,7 @@
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 #include <SPI.h>
 #include "route_planning.h"
+
 class Line_Follower {
     public:
         Line_Follower();
@@ -22,6 +23,9 @@ class Line_Follower {
         uint8_t baseSpeedLeft, baseSpeedRight;
         uint8_t blocksCollected;
         uint8_t pos;
+        uint32_t startTime;
+        uint8_t turnDelay, continueDelay;
+        bool isReturningCube;
         Adafruit_DCMotor *_leftMotor, *_rightMotor;
         const Decision * _currentRoute;
 };
