@@ -1,19 +1,21 @@
 #include <Arduino.h>
 #include "line_follower.h"
 #include <SPI.h>
+#include "ArduinoPinout.h"
+#include "cube_retrieval.h"
+#include "motor_setup.h"
 
-Line_Follower robot;
+Cube_Retrieval cube;
 //Line_Follower robot;
 void setup() {
   // put your setup code here, to run once:
+  
   Serial.begin(9600);
-  Serial.print("Setup called");
-  robot.setup();
-
+  //robot.setup();
+  cube.setup();
+  return;
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  //Line_Follower robot(6,5,75);
-  robot.go();
+  cube.test();
 }

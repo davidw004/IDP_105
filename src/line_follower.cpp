@@ -1,7 +1,7 @@
 #include "Line_Follower.h"
 #include "ArduinoPinout.h"
 
-Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
+
 Line_Follower::Line_Follower()
 {
 }

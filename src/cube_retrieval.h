@@ -4,6 +4,8 @@
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 #include <SPI.h>
+#include "ArduinoPinout.h"
+#include "motor_setup.h"
 
 class Cube_Retrieval 
 {
@@ -12,6 +14,8 @@ class Cube_Retrieval
         void setup();
         void collect();
         void fetch1();
+        void test();
+        friend class line_follower;
     //Constructor
     //Function for moving forward certain distance up to cube
     //Function for detecting type of cube and turning on light
@@ -21,13 +25,16 @@ class Cube_Retrieval
         uint8_t _extremeLeftReading, _leftReading, _rightReading, _extremeRightReading;
         uint8_t _left_weight;
         uint8_t _right_weight;
-        uint8_t maxSpeedLeft = 200;
-        uint8_t maxSpeedRight = 200;
-        uint8_t baseSpeedLeft = 150;
-        uint8_t baseSpeedRight = 150;
+        uint8_t maxSpeed = 200;
+        uint8_t baseSpeed = 150;
         uint8_t blocksCollected = 100;
         uint8_t closingSpeed = 200;
         Adafruit_DCMotor *_clawMotor;
+        unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+        unsigned long debounceDelay = 50; 
+        unsigned long startTime; 
+        int lastButtonState = LOW;
+        int buttonState; 
     //member variables:
     //LEDs for cube detection
     //Motor for picking up cube

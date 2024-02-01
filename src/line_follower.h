@@ -4,6 +4,8 @@
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 #include <SPI.h>
+#include "motor_setup.h"
+#include "ArduinoPinout.h"
 //#include "route_planning.h"
 class Line_Follower {
     public:
