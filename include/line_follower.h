@@ -1,10 +1,8 @@
 #pragma once
 #include "Arduino.h"
-#include <Wire.h>
-#include <Adafruit_MotorShield.h>
-#include "utility/Adafruit_MS_PWMServoDriver.h"
-#include <SPI.h>
 #include "route_planning.h"
+#include "motor_setup.h"
+#include "ArduinoPinout.h"
 
 class Line_Follower {
     public:

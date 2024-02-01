@@ -4,3 +4,5 @@
 #define LINESENSOR4 5
 #define SERVO1 6
 #define SERVO2 7
+#define BUTTON1 13
+#define BUTTON2 10

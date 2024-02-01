@@ -1,5 +1,4 @@
 #pragma once
-#include "Arduino.h"
 
 enum Decision{STRAIGHT, LEFT, RIGHT, BLOCK, HOME};
 

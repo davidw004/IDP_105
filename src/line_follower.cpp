@@ -1,7 +1,5 @@
 #include "Line_Follower.h"
-#include "ArduinoPinout.h"
 
-Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 Line_Follower::Line_Follower()
 {
     maxSpeedLeft = 200;
@@ -18,10 +16,10 @@ Line_Follower::Line_Follower()
 
 void Line_Follower::setup()
 {
-    //pinMode(LINESENSOR1, INPUT);
+    pinMode(LINESENSOR1, INPUT);
     pinMode(LINESENSOR2, INPUT);
     pinMode(LINESENSOR3, INPUT);
-    //pinMode(LINESENSOR4, INPUT);
+    pinMode(LINESENSOR4, INPUT);
 
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
@@ -49,16 +47,16 @@ void Line_Follower::go() {
     Serial.print("Running");
 
     //Read input from sensors (not yet figured out what values are being returned yet)
-    //_extremeLeftReading = digitalRead(LINESENSOR1);
+    _extremeLeftReading = digitalRead(LINESENSOR1);
     _leftReading = digitalRead(LINESENSOR2);
     _rightReading = digitalRead(LINESENSOR3);
-    //_extremeRightReading = digitalRead(LINESENSOR4);
+    _extremeRightReading = digitalRead(LINESENSOR4);
     
     //Run motors forwards
     _leftMotor->run(FORWARD); //motors are connected in reverse
     _rightMotor->run(FORWARD); //motors are connected in reverse
 
-    /*if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
+    if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
 
         if (isReturningCube == false){
         junction();
@@ -69,7 +67,7 @@ void Line_Follower::go() {
         return;
         }
     }
-    */
+    
    
     //If both middle sensors black keep driving at maxspeed
     if (_leftReading == 0 && _rightReading == 0){
@@ -133,8 +131,8 @@ void Line_Follower::junction(){
         case BLOCK:
         {
             //Collect block (call function as friend function)
-            //collectBlock();
-
+            //static bool colour = cube_retrieval::detectBlock();
+            
             //Detect block and select route home
 
             blocksCollected++;
