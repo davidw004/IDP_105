@@ -2,8 +2,8 @@
 
 Line_Follower::Line_Follower()
 {
-    maxSpeedLeft = 200;
-    maxSpeedRight = 200;
+    maxSpeedLeft = 150;
+    maxSpeedRight = 150;
     baseSpeedLeft = 150;
     baseSpeedRight = 150;
     blocksCollected = 0;
@@ -16,10 +16,10 @@ Line_Follower::Line_Follower()
 
 void Line_Follower::setup()
 {
-    pinMode(LINESENSOR1, INPUT);
+    //pinMode(LINESENSOR1, INPUT);
     pinMode(LINESENSOR2, INPUT);
     pinMode(LINESENSOR3, INPUT);
-    pinMode(LINESENSOR4, INPUT);
+    //pinMode(LINESENSOR4, INPUT);
 
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
@@ -46,17 +46,16 @@ void Line_Follower::exitbox(){
 void Line_Follower::go() {
     Serial.print("Running");
 
-    //Read input from sensors (not yet figured out what values are being returned yet)
-    _extremeLeftReading = digitalRead(LINESENSOR1);
+    //_extremeLeftReading = digitalRead(LINESENSOR1);
     _leftReading = digitalRead(LINESENSOR2);
     _rightReading = digitalRead(LINESENSOR3);
-    _extremeRightReading = digitalRead(LINESENSOR4);
+    //_extremeRightReading = digitalRead(LINESENSOR4);
     
     //Run motors forwards
-    _leftMotor->run(FORWARD); //motors are connected in reverse
-    _rightMotor->run(FORWARD); //motors are connected in reverse
+    _leftMotor->run(BACKWARD); //motors are connected in reverse
+    _rightMotor->run(BACKWARD); //motors are connected in reverse
 
-    if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
+    /*if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
 
         if (isReturningCube == false){
         junction();
@@ -66,23 +65,29 @@ void Line_Follower::go() {
         isReturningCube = false;
         return;
         }
-    }
+    }*/
     
    
     //If both middle sensors black keep driving at maxspeed
-    if (_leftReading == 0 && _rightReading == 0){
-        _leftMotor -> setSpeed(maxSpeedLeft);
-        _rightMotor -> setSpeed(maxSpeedRight);
+    if (_leftReading == 1 && _rightReading == 1){
+        _leftMotor -> setSpeed(baseSpeedLeft);
+        _rightMotor -> setSpeed(baseSpeedRight);
     }
     else if (_leftReading == 1 && _rightReading == 0){ //If left high and right low then change motor speed to turn left
         _leftMotor -> setSpeed(0);
-        _rightMotor -> setSpeed(1.4 * baseSpeedRight);
+        _rightMotor -> setSpeed(baseSpeedRight);
     }
     
     else if (_leftReading == 0 && _rightReading == 1){ //If left high and right low then change motor speed to turn left
-        _leftMotor -> setSpeed(1.4 * baseSpeedLeft);
+        _leftMotor -> setSpeed(baseSpeedLeft);
         _rightMotor -> setSpeed(0);
     }
+    else {
+        _leftMotor -> setSpeed(0);
+        _rightMotor -> setSpeed(0);
+    }
+
+    //For error, keep track of which value was last white and recorrecr
 }
 
 
@@ -132,7 +137,7 @@ void Line_Follower::junction(){
         {
             //Collect block (call function as friend function)
             //static bool colour = cube_retrieval::detectBlock();
-            
+
             //Detect block and select route home
 
             blocksCollected++;
@@ -168,6 +173,6 @@ void Line_Follower::junction(){
 }
 
 void Line_Follower::stop() {
-    _rightMotor -> setSpeed(0);
-    _leftMotor -> setSpeed(0);
+    _rightMotor -> run(RELEASE);
+    _leftMotor -> run(RELEASE);
 }
