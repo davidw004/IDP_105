@@ -9,12 +9,9 @@ class Cube_Retrieval
     public:
     Cube_Retrieval();
     void setup(); 
-    void collect();
-    void fetch1();
+    bool pickUp();
+    void dropOff();
     void test();
-    //Function for moving forward certain distance up to cube
-    //Function for detecting type of cube and turning on light
-    //Function for picking up cube
 
     private:
     //member variables:
@@ -22,8 +19,10 @@ class Cube_Retrieval
     uint8_t closingSpeed;
     Adafruit_DCMotor *_clawMotor;
     uint8_t buttonState;
-    //LEDs for cube detection
-    //Motor for picking up cube
-    
+    bool atEnd;
+    bool _blockType;
+    uint32_t _pickupStart;
+    uint32_t _pickupEnd;
+    //LEDs for cube detection    
     
 };

@@ -10,21 +10,26 @@ Line_Follower::Line_Follower()
     pos = 0;
     turnDelay = 3000;
     continueDelay = 1500;
+    isPickingUpCube = false;
     isReturningCube = false;
     _currentRoute = Routes::routeOne;
 }
 
 void Line_Follower::setup()
 {
-    //pinMode(LINESENSOR1, INPUT);
+    pinMode(LINESENSOR1, INPUT);
     pinMode(LINESENSOR2, INPUT);
     pinMode(LINESENSOR3, INPUT);
-    //pinMode(LINESENSOR4, INPUT);
+    pinMode(LINESENSOR4, INPUT);
+
+    //Set pinmode for moving led
+    pinMode(BLUELED, OUTPUT);
 
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
+    cubeRetrieval.setup();
+    
     AFMS.begin();
-
     _leftMotor->setSpeed(baseSpeedLeft);
     _rightMotor->setSpeed(baseSpeedRight);
 }
@@ -32,6 +37,9 @@ void Line_Follower::setup()
 void Line_Follower::exitbox(){
     //Position box physically in the middle of start
     
+    //Turn LED on
+    digitalWrite(BLUELED, HIGH);
+
     //Run motors forwards
     _leftMotor->run(FORWARD); //motors are connected in reverse
     _rightMotor->run(FORWARD); //motors are connected in reverse
@@ -46,16 +54,16 @@ void Line_Follower::exitbox(){
 void Line_Follower::go() {
     Serial.print("Running");
 
-    //_extremeLeftReading = digitalRead(LINESENSOR1);
+    _extremeLeftReading = digitalRead(LINESENSOR1);
     _leftReading = digitalRead(LINESENSOR2);
     _rightReading = digitalRead(LINESENSOR3);
-    //_extremeRightReading = digitalRead(LINESENSOR4);
+    _extremeRightReading = digitalRead(LINESENSOR4);
     
     //Run motors forwards
     _leftMotor->run(BACKWARD); //motors are connected in reverse
     _rightMotor->run(BACKWARD); //motors are connected in reverse
 
-    /*if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
+    if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
 
         if (isReturningCube == false){
         junction();
@@ -65,8 +73,7 @@ void Line_Follower::go() {
         isReturningCube = false;
         return;
         }
-    }*/
-    
+    }
    
     //If both middle sensors black keep driving at maxspeed
     if (_leftReading == 1 && _rightReading == 1){
@@ -135,27 +142,38 @@ void Line_Follower::junction(){
         switch(_currentRoute[pos]){
         case BLOCK:
         {
+            startTime == millis();
+            while ((millis() - startTime) < 3000){
+                go(); //Will need fine tuning
+            }
+            
             //Collect block (call function as friend function)
-            //static bool colour = cube_retrieval::detectBlock();
-
-            //Detect block and select route home
-
+            blockHard =  cubeRetrieval.pickUp();
             blocksCollected++;
-            //If return value from function is hard/soft && blocksCollected switch case then select route home
+
+            //Select route home based on current array and blockHard
+            if (blockHard){
+                if (_currentRoute == Routes::routeOne){_currentRoute = Routes::returnOneGreen;}
+                else if (_currentRoute == Routes::routeTwoGreen || _currentRoute == Routes::routeTwoRed) {_currentRoute = Routes::returnTwoGreen;}
+            }
+            else{
+                if (_currentRoute == Routes::routeOne){_currentRoute = Routes::returnOneRed;}
+                else if (_currentRoute == Routes::routeTwoGreen || _currentRoute == Routes::routeTwoRed) {_currentRoute = Routes::returnTwoRed;}
+            }
+
             break;
         }
         case HOME:
         {
             isReturningCube = true;
-            //Start timer
-            startTime = millis();
             // Continue driving until 3 seconds elapsed
             while (isReturningCube == true){
                 go();
             }
             
-
             //Drop off cube code (include travel certain duration)
+            cubeRetrieval.dropOff();
+
             //Spin 180 to begin next path
             _leftMotor -> setSpeed(baseSpeedLeft);
             _rightMotor -> setSpeed(baseSpeedRight);
