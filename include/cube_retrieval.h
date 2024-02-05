@@ -3,6 +3,12 @@
 #include "ArduinoPinout.h"
 #include <SPI.h>
 #include "motor_setup.h"
+#include "line_follower.h"
+#include "Ultrasonic.h"
+
+#define baseSpeed 250
+#define closingSpeed 200
+#define pickupDistance 10 // Will need tweaking
 
 class Cube_Retrieval 
 {
@@ -12,11 +18,10 @@ class Cube_Retrieval
     bool pickUp();
     void dropOff();
     void test();
+    void approachCube(&Line_Follower LF);
 
     private:
     //member variables:
-    uint8_t baseSpeed;
-    uint8_t closingSpeed;
     Adafruit_DCMotor *_clawMotor;
     uint8_t buttonState;
     bool atEnd;

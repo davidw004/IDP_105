@@ -2,14 +2,8 @@
 
 Line_Follower::Line_Follower()
 {
-    maxSpeedLeft = 150;
-    maxSpeedRight = 150;
-    baseSpeedLeft = 150;
-    baseSpeedRight = 150;
     blocksCollected = 0;
     pos = 0;
-    turnDelay = 3000;
-    continueDelay = 1500;
     isPickingUpCube = false;
     isReturningCube = false;
     _currentRoute = Routes::routeOne;
@@ -142,10 +136,7 @@ void Line_Follower::junction(){
         switch(_currentRoute[pos]){
         case BLOCK:
         {
-            startTime == millis();
-            while ((millis() - startTime) < 3000){
-                go(); //Will need fine tuning
-            }
+            cubeRetrieval.approachCube(*this);
             
             //Collect block (call function as friend function)
             blockHard =  cubeRetrieval.pickUp();

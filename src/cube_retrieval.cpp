@@ -2,8 +2,6 @@
 
 Cube_Retrieval::Cube_Retrieval()
 {
-    baseSpeed = 250;
-    closingSpeed = 200;
     atEnd = false;
 }
 
@@ -43,10 +41,20 @@ void Cube_Retrieval::test(){
     }
     else if (digitalRead(BUTTON2) == HIGH){
         _clawMotor -> run(FORWARD);
-         printf("BUTT LOW");
+         printf("BUTTon LOW");
      }
     else {
         _clawMotor -> run(RELEASE);
+    }
+}
+
+void Cube_Retrieval::approachCube(&Line_Follower LF)
+{
+    uint32_t startTime = millis();
+    auto distFromWall = 
+    while ((millis() - startTime) < 3000)
+    {
+        LF.go(); //Will need fine tuning
     }
 }
 

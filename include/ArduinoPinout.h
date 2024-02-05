@@ -4,7 +4,10 @@
 #define LINESENSOR4 5
 #define SERVO1 6
 #define SERVO2 7
-#define BUTTON1 8
-#define BUTTON2 9
-#define BUTTON3 10
-#define BLUELED 11 //indicates robot is moving
+#define ULTRASONIC A0
+#define LED0 8
+#define LED1 9
+#define LED2 10
+#define SWITCH1 11
+#define SWITCH2 12
+#define BUTTON1 13
