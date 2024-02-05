@@ -35,8 +35,7 @@ void Line_Follower::setup()
 }
 
 void Line_Follower::exitbox(){
-    //Position box physically in the middle of start
-    
+
     //Turn LED on
     digitalWrite(BLUELED, HIGH);
 
@@ -48,11 +47,9 @@ void Line_Follower::exitbox(){
     delay(2000); //Fine tune duration
     _leftMotor->run(RELEASE);
     _rightMotor->run(RELEASE); 
-
 }
 
 void Line_Follower::go() {
-    Serial.print("Running");
 
     _extremeLeftReading = digitalRead(LINESENSOR1);
     _leftReading = digitalRead(LINESENSOR2);
@@ -69,9 +66,8 @@ void Line_Follower::go() {
         junction();
         }
         else if ((isReturningCube == true)){
-        //Drop off cube code;
-        isReturningCube = false;
-        return;
+        isReturningCube = false; //This will end the "go()" loop within the HOME switch case 
+        return; //Returns from the go() function
         }
     }
    
@@ -90,16 +86,18 @@ void Line_Follower::go() {
         _rightMotor -> setSpeed(0);
     }
     else {
-        _leftMotor -> setSpeed(0);
-        _rightMotor -> setSpeed(0);
+        _leftMotor -> run(RELEASE);
+        _rightMotor -> run(RELEASE);
     }
 
     //For error, keep track of which value was last white and recorrecr
 }
 
 
-void Line_Follower::junction(){
-    switch (_currentRoute[pos]){  
+void Line_Follower::junction()
+{
+    switch (_currentRoute[pos])
+    {  
         case LEFT:
         {
             //Turn left code
@@ -109,7 +107,6 @@ void Line_Follower::junction(){
             _rightMotor->run(BACKWARD);  // Replace if needed
             //wait duration of time
             delay(turnDelay);
-            pos++;
             break;
         }
         case RIGHT:
@@ -121,7 +118,6 @@ void Line_Follower::junction(){
             _rightMotor->run(FORWARD);
             //wait duration of time
             delay(turnDelay);
-            pos++;
             break;
         }
         case STRAIGHT:
@@ -132,48 +128,60 @@ void Line_Follower::junction(){
             _leftMotor->run(FORWARD);  // Replace if needed
             _rightMotor->run(FORWARD);
             delay(continueDelay);
-            pos++;
             break;
         }
-        default:{
+        default:
+        {
             break;
         }
     }
-        switch(_currentRoute[pos]){
+    pos++;
+    switch(_currentRoute[pos])
+    {
         case BLOCK:
         {
+            //Currently just hard coding the distance from final turn to the block. Will likely need editing
             startTime == millis();
-            while ((millis() - startTime) < 3000){
+            while ((millis() - startTime) < 3000)
+            {
                 go(); //Will need fine tuning
             }
-            
+            _leftMotor->run(RELEASE);
+            _rightMotor->run(RELEASE);
             //Collect block (call function as friend function)
             blockHard =  cubeRetrieval.pickUp();
             blocksCollected++;
-
             //Select route home based on current array and blockHard
-            if (blockHard){
-                if (_currentRoute == Routes::routeOne){_currentRoute = Routes::returnOneGreen;}
-                else if (_currentRoute == Routes::routeTwoGreen || _currentRoute == Routes::routeTwoRed) {_currentRoute = Routes::returnTwoGreen;}
+            if (blockHard)
+            {
+                if (blocksCollected == 1){_currentRoute = Routes::returnOneRed;}
+                else if (blocksCollected == 2) {_currentRoute = Routes::returnTwoRed;}
             }
-            else{
-                if (_currentRoute == Routes::routeOne){_currentRoute = Routes::returnOneRed;}
-                else if (_currentRoute == Routes::routeTwoGreen || _currentRoute == Routes::routeTwoRed) {_currentRoute = Routes::returnTwoRed;}
+            
+            {
+                if (blocksCollected == 1){_currentRoute = Routes::returnOneGreen;}
+                else if (blocksCollected == 2) {_currentRoute = Routes::returnTwoGreen;}
             }
-
+            pos = 0;
             break;
         }
         case HOME:
         {
             isReturningCube = true;
             // Continue driving until 3 seconds elapsed
-            while (isReturningCube == true){
+            while (isReturningCube == true)
+            {
                 go();
             }
-            
+            _leftMotor->run(RELEASE);
+            _rightMotor->run(RELEASE);
             //Drop off cube code (include travel certain duration)
             cubeRetrieval.dropOff();
 
+            //If blocksCollected = 1,2 etc select route to next block
+            if (_currentRoute = Routes::returnOneRed){_currentRoute = Routes::routeTwoRed;}
+            else if (_currentRoute = Routes::returnOneGreen) {_currentRoute = Routes::routeTwoGreen;}
+            
             //Spin 180 to begin next path
             _leftMotor -> setSpeed(baseSpeedLeft);
             _rightMotor -> setSpeed(baseSpeedRight);
@@ -181,9 +189,10 @@ void Line_Follower::junction(){
             _rightMotor->run(FORWARD);
             //wait duration of time
             delay(4000);
-            //If blocksCollected = 1,2 etc select route to next block
+            pos = 0;
             break;
         }
+
         default:{
             break;
         }
