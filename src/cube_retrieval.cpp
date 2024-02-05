@@ -20,15 +20,15 @@ bool Cube_Retrieval::pickUp() //code to pickup and detect block
     _pickupStart = millis();
     while (!atEnd){
         _clawMotor -> run(BACKWARD);
-        if (digitalRead(BUTTON3)){
+        if (digitalRead(SWITCH2)){
             _pickupEnd = millis();
             atEnd = true;
             _clawMotor -> run(RELEASE);
         }
     }
     
-    if (_pickupEnd - _pickupStart <= 5000) _blockType = true;
-    else _blockType = false;
+    if (_pickupEnd - _pickupStart <= 5000) _blockType = FOAMBLOCK;
+    else _blockType = 3DPRINTEDBLOCK;
 
     return _blockType;
 }
@@ -48,13 +48,17 @@ void Cube_Retrieval::test(){
     }
 }
 
-void Cube_Retrieval::approachCube(&Line_Follower LF)
+void Cube_Retrieval::approachCube(&Line_Follower LF, Ultrasonic* USonicSensor)
 {
     uint32_t startTime = millis();
-    auto distFromWall = 
+    float distFromWall = USonicSensor->Read();
     while ((millis() - startTime) < 3000)
     {
         LF.go(); //Will need fine tuning
+        if (distFromWall <= pickupDistance)
+        {
+            break;
+        }
     }
 }
 

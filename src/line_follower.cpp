@@ -1,7 +1,8 @@
 #include "Line_Follower.h"
 
-Line_Follower::Line_Follower()
+Line_Follower::Line_Follower(Ultrasonic* Usonic)
 {
+    US_Sensor = Usonic;
     blocksCollected = 0;
     pos = 0;
     isPickingUpCube = false;
@@ -136,18 +137,18 @@ void Line_Follower::junction(){
         switch(_currentRoute[pos]){
         case BLOCK:
         {
-            cubeRetrieval.approachCube(*this);
+            cubeRetrieval.approachCube(*this, Usonic);
             
             //Collect block (call function as friend function)
-            blockHard =  cubeRetrieval.pickUp();
+            blockType =  cubeRetrieval.pickUp();
             blocksCollected++;
 
-            //Select route home based on current array and blockHard
-            if (blockHard){
+            //Select route home based on current array and blockType
+            if (blockType == 3DPRINTEDBLOCK){
                 if (_currentRoute == Routes::routeOne){_currentRoute = Routes::returnOneGreen;}
                 else if (_currentRoute == Routes::routeTwoGreen || _currentRoute == Routes::routeTwoRed) {_currentRoute = Routes::returnTwoGreen;}
             }
-            else{
+            else{ // block is foam
                 if (_currentRoute == Routes::routeOne){_currentRoute = Routes::returnOneRed;}
                 else if (_currentRoute == Routes::routeTwoGreen || _currentRoute == Routes::routeTwoRed) {_currentRoute = Routes::returnTwoRed;}
             }

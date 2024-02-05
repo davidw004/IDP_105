@@ -3,9 +3,10 @@
 #include "cube_retrieval.h"
 #include "Ultrasonic.h"
 
-Line_Follower robot;
 Ultrasonic USonicDist(ULTRASONIC);
+Line_Follower robot(&USonicDist);
 void setup() {
+  USonicDist.Setup();
   Serial.begin(9600);
   robot.setup();
 

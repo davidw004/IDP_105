@@ -8,7 +8,9 @@
 
 #define baseSpeed 250
 #define closingSpeed 200
-#define pickupDistance 10 // Will need tweaking
+#define pickupDistance 10.0f
+#define 3DPRINTEDBLOCK true
+#define FOAMBLOCK false
 
 class Cube_Retrieval 
 {
@@ -18,7 +20,7 @@ class Cube_Retrieval
     bool pickUp();
     void dropOff();
     void test();
-    void approachCube(&Line_Follower LF);
+    void approachCube(&Line_Follower LF, Ultrasonic* USonicSensor);
 
     private:
     //member variables:
