@@ -34,7 +34,8 @@ void Line_Follower::setup()
     _rightMotor->setSpeed(baseSpeedRight);
 }
 
-void Line_Follower::exitbox(){
+void Line_Follower::exitbox()
+{
 
     //Turn LED on
     digitalWrite(BLUELED, HIGH);
@@ -49,7 +50,8 @@ void Line_Follower::exitbox(){
     _rightMotor->run(RELEASE); 
 }
 
-void Line_Follower::go() {
+void Line_Follower::go()
+{
 
     _extremeLeftReading = digitalRead(LINESENSOR1);
     _leftReading = digitalRead(LINESENSOR2);
@@ -199,7 +201,8 @@ void Line_Follower::junction()
     }
 }
 
-void Line_Follower::stop() {
+void Line_Follower::stop()
+{
     _rightMotor -> run(RELEASE);
     _leftMotor -> run(RELEASE);
 }
