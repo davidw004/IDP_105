@@ -5,9 +5,10 @@
 Line_Follower robot;
 void setup() {
   Serial.begin(9600);
+  Serial.print("Setup");
   robot.setup();
-  //cube.setup();
   //robot.exitbox();
+
 
 }
 void loop(){

@@ -8,7 +8,7 @@ Line_Follower::Line_Follower()
     baseSpeedRight = 150;
     blocksCollected = 0;
     pos = 0;
-    turnDelay = 3000;
+    turnDelay = 1200;
     continueDelay = 1500;
     isPickingUpCube = false;
     isReturningCube = false;
@@ -24,6 +24,8 @@ void Line_Follower::setup()
 
     //Set pinmode for moving led
     pinMode(BLUELED, OUTPUT);
+    pinMode(REDLED, OUTPUT);
+    pinMode(GREENLED, OUTPUT);
 
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
@@ -58,9 +60,6 @@ void Line_Follower::go()
     _rightReading = digitalRead(LINESENSOR3);
     _extremeRightReading = digitalRead(LINESENSOR4);
     
-    //Run motors forwards
-    _leftMotor->run(BACKWARD); //motors are connected in reverse
-    _rightMotor->run(BACKWARD); //motors are connected in reverse
 
     if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
 
@@ -75,17 +74,27 @@ void Line_Follower::go()
    
     //If both middle sensors black keep driving at maxspeed
     if (_leftReading == 1 && _rightReading == 1){
+        
         _leftMotor -> setSpeed(baseSpeedLeft);
         _rightMotor -> setSpeed(baseSpeedRight);
+        //Run motors forwards
+        _leftMotor->run(BACKWARD); //motors are connected in reverse
+        _rightMotor->run(BACKWARD); //motors are connected in reverse
     }
     else if (_leftReading == 1 && _rightReading == 0){ //If left high and right low then change motor speed to turn left
-        _leftMotor -> setSpeed(0);
+        _leftMotor -> setSpeed(0.8 * baseSpeedLeft);
         _rightMotor -> setSpeed(baseSpeedRight);
+        //Run motors forwards
+        _leftMotor->run(BACKWARD); //motors are connected in reverse
+        _rightMotor->run(BACKWARD); //motors are connected in reverse
     }
     
     else if (_leftReading == 0 && _rightReading == 1){ //If left high and right low then change motor speed to turn left
         _leftMotor -> setSpeed(baseSpeedLeft);
-        _rightMotor -> setSpeed(0);
+        _rightMotor -> setSpeed(0.8 * baseSpeedRight);
+        //Run motors forwards
+        _leftMotor->run(BACKWARD); //motors are connected in reverse
+        _rightMotor->run(BACKWARD); //motors are connected in reverse
     }
     else {
         _leftMotor -> run(RELEASE);
@@ -95,6 +104,51 @@ void Line_Follower::go()
     //For error, keep track of which value was last white and recorrecr
 }
 
+void Line_Follower::leftTurn()
+{   
+    _rightMotor -> setSpeed(baseSpeedRight);
+    _leftMotor -> setSpeed(baseSpeedLeft);
+
+    _leftMotor->run(FORWARD);
+    _rightMotor->run(BACKWARD);
+    delay(200);
+    _extremeLeftReading = digitalRead(LINESENSOR1);
+    while(_extremeLeftReading != 1)
+    {
+        _leftMotor->run(FORWARD);
+        _rightMotor->run(BACKWARD);   
+        _extremeLeftReading = digitalRead(LINESENSOR1);   
+    }
+    _leftMotor -> run(RELEASE);
+    _rightMotor -> run(RELEASE);
+}
+
+void Line_Follower::rightTurn()
+{
+    _leftMotor -> setSpeed(baseSpeedLeft);
+    _rightMotor -> setSpeed(baseSpeedRight);
+    _leftMotor->run(BACKWARD);
+    _rightMotor->run(FORWARD);   
+    delay(200);
+    _extremeRightReading = digitalRead(LINESENSOR4);
+    while(_extremeRightReading != 1)
+    {
+        _leftMotor->run(BACKWARD);
+        _rightMotor->run(FORWARD); 
+        _extremeRightReading = digitalRead(LINESENSOR4);
+    }
+    _leftMotor -> run(RELEASE);
+    _rightMotor -> run(RELEASE);
+}
+
+void Line_Follower::straight()
+{
+    _leftMotor -> setSpeed(baseSpeedLeft);
+    _rightMotor -> setSpeed(baseSpeedRight);
+    _leftMotor->run(FORWARD);  // Replace if needed
+    _rightMotor->run(FORWARD);
+    delay(continueDelay);
+}
 
 void Line_Follower::junction()
 {
@@ -102,34 +156,17 @@ void Line_Follower::junction()
     {  
         case LEFT:
         {
-            //Turn left code
-            _leftMotor -> setSpeed(baseSpeedLeft);
-            _rightMotor -> setSpeed(0.5 * baseSpeedRight);
-            _leftMotor->run(FORWARD);  // Replace if needed
-            _rightMotor->run(BACKWARD);  // Replace if needed
-            //wait duration of time
-            delay(turnDelay);
+            leftTurn();
             break;
         }
         case RIGHT:
         {
-            //Turn right code
-            _leftMotor -> setSpeed(0.5 * baseSpeedLeft);
-            _rightMotor -> setSpeed(baseSpeedRight);
-            _leftMotor->run(BACKWARD);  // Replace if needed
-            _rightMotor->run(FORWARD);
-            //wait duration of time
-            delay(turnDelay);
+            rightTurn();
             break;
         }
         case STRAIGHT:
         {
-            //Continue straight (prevent double detection)
-            _leftMotor -> setSpeed(baseSpeedLeft);
-            _rightMotor -> setSpeed(baseSpeedRight);
-            _leftMotor->run(FORWARD);  // Replace if needed
-            _rightMotor->run(FORWARD);
-            delay(continueDelay);
+            straight();
             break;
         }
         default:
@@ -152,6 +189,13 @@ void Line_Follower::junction()
             _rightMotor->run(RELEASE);
             //Collect block (call function as friend function)
             blockHard =  cubeRetrieval.pickUp();
+            if (blockHard){digitalWrite(REDLED, HIGH);}
+            else {digitalWrite(GREENLED, HIGH);}
+
+            delay(5000);
+            digitalWrite(REDLED, LOW);
+            digitalWrite(GREENLED, LOW);
+
             blocksCollected++;
             //Select route home based on current array and blockHard
             if (blockHard)
@@ -195,7 +239,8 @@ void Line_Follower::junction()
             break;
         }
 
-        default:{
+        default:
+        {
             break;
         }
     }
@@ -205,4 +250,4 @@ void Line_Follower::stop()
 {
     _rightMotor -> run(RELEASE);
     _leftMotor -> run(RELEASE);
-}
+} 

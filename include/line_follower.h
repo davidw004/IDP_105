@@ -15,6 +15,9 @@ class Line_Follower {
         void setup();
         void exitbox();
         void go();
+        void leftTurn();
+        void rightTurn();
+        void straight();
         void stop();
         void junction();
 
@@ -26,7 +29,7 @@ class Line_Follower {
         uint8_t blocksCollected;
         uint8_t pos;
         uint32_t startTime;
-        uint8_t turnDelay, continueDelay;
+        uint32_t turnDelay, continueDelay;
         bool isPickingUpCube, isReturningCube;
         Adafruit_DCMotor *_leftMotor, *_rightMotor;
         const Decision *_currentRoute;
