@@ -64,9 +64,11 @@ void Cube_Retrieval::testTimer()
     _clawMotor -> setSpeed(baseSpeed);
     _pickupStart = millis();
     while (!atEnd){
+        Serial.print(" Switch not hit");
         _clawMotor -> run(BACKWARD);
         Serial.print("LIFTING");
         if (digitalRead(LIMITSWITCH)){
+            Serial.print("switch hit");
             _pickupEnd = millis();
             atEnd = true;
             _clawMotor -> run(RELEASE);

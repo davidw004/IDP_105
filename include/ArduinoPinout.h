@@ -6,6 +6,5 @@
 #define GREENLED 7
 #define BLUELED 8
 #define BUTTON1 9 //test button
-#define LIMITSWITCH 8
+#define LIMITSWITCH 13
 #define BUTTON2 10
-#define BUTTON3 13
