@@ -96,6 +96,7 @@ void Line_Follower::go()
     else {
         _leftMotor -> run(RELEASE);
         _rightMotor -> run(RELEASE);
+        digitalWrite(BLUELED, LOW);
     }
 
     //For error, keep track of which value was last white and recorrecr
@@ -116,8 +117,9 @@ void Line_Follower::leftTurn()
         _rightMotor->run(BACKWARD);   
         _extremeLeftReading = digitalRead(LINESENSOR1);   
     }
-    _leftMotor -> run(RELEASE);
-    _rightMotor -> run(RELEASE);
+    _leftMotor -> run(BACKWARD);
+    _rightMotor -> run(BACKWARD);
+    delay(400);
 }
 
 void Line_Follower::rightTurn()
@@ -134,8 +136,9 @@ void Line_Follower::rightTurn()
         _rightMotor->run(FORWARD); 
         _extremeRightReading = digitalRead(LINESENSOR4);
     }
-    _leftMotor -> run(RELEASE);
-    _rightMotor -> run(RELEASE);
+    _leftMotor -> run(BACKWARD);
+    _rightMotor -> run(BACKWARD);
+    delay(400);
 }
 
 void Line_Follower::straight()
@@ -145,6 +148,11 @@ void Line_Follower::straight()
     _leftMotor->run(FORWARD);  // Replace if needed
     _rightMotor->run(FORWARD);
     delay(continueDelay);
+}
+
+void Line_Follower::turn180()
+{
+    
 }
 
 void Line_Follower::approachCube()
@@ -191,8 +199,8 @@ void Line_Follower::junction()
             _rightMotor->run(RELEASE);
             //Collect block (call function as friend function)
             blockHard =  cubeRetrieval.pickUp();
-            if (blockHard){digitalWrite(REDLED, HIGH);}
-            else {digitalWrite(GREENLED, HIGH);}
+            if (blockHard) digitalWrite(REDLED, HIGH);
+            else digitalWrite(GREENLED, HIGH);
 
             delay(5000);
             digitalWrite(REDLED, LOW);
@@ -201,7 +209,7 @@ void Line_Follower::junction()
             blocksCollected++;
             //Select route home based on current array and blockHard
             if (blockHard)
-            {
+            {   
                 if (blocksCollected == 1){_currentRoute = Routes::returnOneRed;}
                 else if (blocksCollected == 2) {_currentRoute = Routes::returnTwoRed;}
             }
@@ -216,8 +224,7 @@ void Line_Follower::junction()
         case HOME:
         {
             isReturningCube = true;
-            // Continue driving until 3 seconds elapsed
-            while (isReturningCube == true)
+            while (isReturningCube == true) //test if code will detect home section
             {
                 go();
             }

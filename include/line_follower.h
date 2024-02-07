@@ -20,6 +20,7 @@ class Line_Follower {
         void leftTurn();
         void rightTurn();
         void straight();
+        void turn180();
         void approachCube();
         void stop();
         void junction();

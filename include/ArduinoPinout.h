@@ -5,6 +5,7 @@
 #define REDLED 6 //indicates robot is moving
 #define GREENLED 7
 #define BLUELED 8
-#define BUTTON1 9
+#define BUTTON1 9 //test button
+#define LIMITSWITCH 8
 #define BUTTON2 10
 #define BUTTON3 13

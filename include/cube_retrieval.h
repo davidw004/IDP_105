@@ -14,16 +14,18 @@ class Cube_Retrieval
     bool pickUp();
     void dropOff();
     void test();
+    void testTimer();
+
 
     private:
     //member variables:
     uint8_t baseSpeed;
     uint8_t closingSpeed;
+    uint32_t _pickupStart;
+    uint32_t _pickupEnd;
+    uint32_t _releaseTime;
     Adafruit_DCMotor *_clawMotor;
     uint8_t buttonState;
     bool atEnd;
     bool _blockType;
-    uint32_t _pickupStart;
-    uint32_t _pickupEnd;
-    //LEDs for cube detection
 };
