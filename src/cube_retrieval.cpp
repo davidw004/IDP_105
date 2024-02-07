@@ -8,10 +8,13 @@ Cube_Retrieval::Cube_Retrieval()
 }
 
 void Cube_Retrieval::setup(){
+
     _clawMotor = AFMS.getMotor(3);
     pinMode(BUTTON1, INPUT);
     pinMode(BUTTON2, INPUT);
-    pinMode(BUTTON3, INPUT);
+    AFMS.begin();
+
+    //pinMode(BUTTON3, INPUT);
 }
 
 
