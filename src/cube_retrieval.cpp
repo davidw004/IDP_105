@@ -3,6 +3,7 @@
 Cube_Retrieval::Cube_Retrieval()
 {
     baseSpeed = 250;
+    startTime = 0;
     closingSpeed = 200;
     _pickupStart = 0;
     _pickupEnd = 0;
@@ -20,23 +21,8 @@ void Cube_Retrieval::setup(){
 
 bool Cube_Retrieval::pickUp() //code to pickup and detect block
 {   
-    _clawMotor ->run(RELEASE);
-    atEnd = false;
-    _clawMotor -> setSpeed(baseSpeed);
-    _pickupStart = millis();
-    while (!atEnd){
-        Serial.print(" Switch not hit");
-        _clawMotor -> run(BACKWARD);
-        Serial.print("LIFTING");
-        Serial.print(digitalRead(LIMITSWITCH));
-        if (!digitalRead(LIMITSWITCH)){
-            Serial.print("switch hit");
-            _pickupEnd = millis();
-            atEnd = true;
-            _clawMotor -> run(RELEASE);
-        }
-    }
-    delay(2000);
+    raiseClaw();
+    //logic to detect cube
     
     /*if (_pickupEnd - _pickupStart <= 5000) _blockType = HARDBLOCK;
     else _blockType = SOFTBLOCK;*/
@@ -61,15 +47,13 @@ void Cube_Retrieval::test(){
     }
 }
 
-void Cube_Retrieval::testTimer()
+void Cube_Retrieval::raiseClaw()
 {   
     atEnd = false;
     _clawMotor -> setSpeed(baseSpeed);
-    _pickupStart = millis();
     while (!atEnd){
         _clawMotor -> run(BACKWARD);
         if (!digitalRead(LIMITSWITCH)){
-            _pickupEnd = millis();
             atEnd = true;
             _clawMotor -> run(RELEASE);
         }
@@ -89,4 +73,13 @@ void Cube_Retrieval::dropOff()
     }
     _clawMotor -> run(FORWARD);
     delay(_releaseTime);
+}
+
+void Cube_Retrieval::prepare()
+{   
+    Serial.print("in function");
+    _clawMotor -> setSpeed(baseSpeed);
+    _clawMotor -> run(FORWARD);
+    delay(5000);
+    _clawMotor-> run(RELEASE);   
 }

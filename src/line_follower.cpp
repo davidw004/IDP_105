@@ -22,12 +22,16 @@ void Line_Follower::setup()
     pinMode(LINESENSOR3, INPUT);
     pinMode(LINESENSOR4, INPUT);
 
+    pinMode(REDLED, OUTPUT);
+    pinMode(GREENLED, OUTPUT);
+    pinMode(BLUELED, OUTPUT);
+
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
     
     AFMS.begin();
-    cubeRetrieval.testTimer();
+    cubeRetrieval.raiseClaw();
     _leftMotor->setSpeed(baseSpeedLeft);
     _rightMotor->setSpeed(baseSpeedRight);
 }
@@ -57,7 +61,7 @@ void Line_Follower::go()
     _extremeRightReading = digitalRead(LINESENSOR4);
     
 
-    if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
+    /*if ((_extremeLeftReading == 1 || _extremeRightReading == 1)){
 
         if (isReturningCube == false){
         junction();
@@ -67,6 +71,7 @@ void Line_Follower::go()
         return; //Returns from the go() function
         }
     }
+    */
    
     //If both middle sensors black keep driving at maxspeed
     if (_leftReading == 1 && _rightReading == 1){
@@ -78,7 +83,7 @@ void Line_Follower::go()
         _rightMotor->run(BACKWARD); //motors are connected in reverse
     }
     else if (_leftReading == 1 && _rightReading == 0){ //If left high and right low then change motor speed to turn left
-        _leftMotor -> setSpeed(0.8 * baseSpeedLeft);
+        _leftMotor -> setSpeed(0.3 * baseSpeedLeft);
         _rightMotor -> setSpeed(baseSpeedRight);
         //Run motors forwards
         _leftMotor->run(BACKWARD); //motors are connected in reverse
@@ -87,7 +92,7 @@ void Line_Follower::go()
     
     else if (_leftReading == 0 && _rightReading == 1){ //If left high and right low then change motor speed to turn left
         _leftMotor -> setSpeed(baseSpeedLeft);
-        _rightMotor -> setSpeed(0.8 * baseSpeedRight);
+        _rightMotor -> setSpeed(0.3 * baseSpeedRight);
         //Run motors forwards
         _leftMotor->run(BACKWARD); //motors are connected in reverse
         _rightMotor->run(BACKWARD); //motors are connected in reverse
@@ -117,8 +122,7 @@ void Line_Follower::leftTurn()
         _extremeLeftReading = digitalRead(LINESENSOR1);   
     }
     _leftMotor -> run(BACKWARD);
-    _rightMotor -> run(BACKWARD);
-    delay(400);
+    delay(500);
 }
 
 void Line_Follower::rightTurn()
@@ -135,9 +139,8 @@ void Line_Follower::rightTurn()
         _rightMotor->run(FORWARD); 
         _extremeRightReading = digitalRead(LINESENSOR4);
     }
-    _leftMotor -> run(BACKWARD);
     _rightMotor -> run(BACKWARD);
-    delay(400);
+    delay(500);
 }
 
 void Line_Follower::straight()
@@ -192,7 +195,8 @@ void Line_Follower::junction()
     switch(_currentRoute[pos])
     {
         case BLOCK:
-        {   
+        {   //lower motors
+            cubeRetrieval.prepare();
             approachCube();
             _leftMotor->run(RELEASE);
             _rightMotor->run(RELEASE);
@@ -201,7 +205,7 @@ void Line_Follower::junction()
             if (blockHard) digitalWrite(REDLED, HIGH);
             else digitalWrite(GREENLED, HIGH);
             delay(5000);
-            
+
             digitalWrite(REDLED, LOW);
             digitalWrite(GREENLED, LOW);
 

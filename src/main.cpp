@@ -2,25 +2,15 @@
 #include "line_follower.h"
 #include "cube_retrieval.h"
 
-//Line_Follower robot;
-Cube_Retrieval cube;
+Line_Follower robot;
 void setup() {
   Serial.begin(9600);
-  Serial.print("Setup");
-
-  //Set pinmode for moving led
-  pinMode(BLUELED, OUTPUT);
-  pinMode(GREENLED, OUTPUT);
-  pinMode(BUTTON1, INPUT);
-
-  //robot.setup();
-  //robot.exitbox();
-
-  cube.setup();
-  cube.testTimer();
+  robot.setup();
+  robot.exitbox();
+  
+  //cube.testTimer();
 }
 void loop()
 {
-  //robot.go();
-  //cube.test();
+  robot.go();
 }
