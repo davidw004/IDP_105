@@ -2,13 +2,16 @@
 #include "Arduino.h"
 #include "ArduinoPinout.h"
 #include <SPI.h>
+#include "line_follower.h"
 #include "motor_setup.h"
+#define HARDBLOCK true
+#define SOFTBLOCK false
 
 class Cube_Retrieval 
 {
     public:
     Cube_Retrieval();
-    void setup(); 
+    void setup();
     bool pickUp();
     void dropOff();
     void test();

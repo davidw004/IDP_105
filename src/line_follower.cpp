@@ -30,7 +30,6 @@ void Line_Follower::setup()
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
-    TimeOfFlight.Setup()
     
     AFMS.begin();
     _leftMotor->setSpeed(baseSpeedLeft);
@@ -151,6 +150,16 @@ void Line_Follower::straight()
     delay(continueDelay);
 }
 
+void Line_Follower::approachCube()
+{
+    //Currently just hard coding the distance from final turn to the block. Will likely need editing
+    startTime == millis();
+    while ((millis() - startTime) < 3000)
+    {
+        go(); //Will need fine tuning
+    }
+}
+
 void Line_Follower::junction()
 {
     switch (_currentRoute[pos])
@@ -180,12 +189,6 @@ void Line_Follower::junction()
     {
         case BLOCK:
         {
-            //Currently just hard coding the distance from final turn to the block. Will likely need editing
-            startTime == millis();
-            while ((millis() - startTime) < 3000)
-            {
-                go(); //Will need fine tuning
-            }
             _leftMotor->run(RELEASE);
             _rightMotor->run(RELEASE);
             //Collect block (call function as friend function)

@@ -17,7 +17,6 @@ void Cube_Retrieval::setup(){
     //pinMode(BUTTON3, INPUT);
 }
 
-
 bool Cube_Retrieval::pickUp() //code to pickup and detect block
 {
     //Pick up block then return 1 if block hard
