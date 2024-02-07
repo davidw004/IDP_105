@@ -13,12 +13,8 @@ void setup() {
   pinMode(GREENLED, OUTPUT);
   pinMode(BUTTON1, INPUT);
 
-  /*robot.setup();
-  while (BUTTON1 == LOW){
-    delay(1000);
-  }
-  robot.exitbox();
-  */
+  //robot.setup();
+  //robot.exitbox();
 
   cube.setup();
   cube.testTimer();

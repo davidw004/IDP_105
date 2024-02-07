@@ -4,8 +4,8 @@ Line_Follower::Line_Follower()
 {
     maxSpeedLeft = 150;
     maxSpeedRight = 150;
-    baseSpeedLeft = 150;
-    baseSpeedRight = 150;
+    baseSpeedLeft = 125;
+    baseSpeedRight = 125;
     blocksCollected = 0;
     pos = 0;
     turnDelay = 1200;
@@ -22,13 +22,12 @@ void Line_Follower::setup()
     pinMode(LINESENSOR3, INPUT);
     pinMode(LINESENSOR4, INPUT);
 
-
-
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
     
     AFMS.begin();
+    cubeRetrieval.testTimer();
     _leftMotor->setSpeed(baseSpeedLeft);
     _rightMotor->setSpeed(baseSpeedRight);
 }
@@ -159,7 +158,7 @@ void Line_Follower::approachCube()
 {
     //Currently just hard coding the distance from final turn to the block. Will likely need editing
     startTime == millis();
-    while ((millis() - startTime) < 3000)
+    while ((millis() - startTime) < 2000)
     {
         go(); //Will need fine tuning
     }
@@ -201,8 +200,8 @@ void Line_Follower::junction()
             blockHard =  cubeRetrieval.pickUp();
             if (blockHard) digitalWrite(REDLED, HIGH);
             else digitalWrite(GREENLED, HIGH);
-
             delay(5000);
+            
             digitalWrite(REDLED, LOW);
             digitalWrite(GREENLED, LOW);
 

@@ -16,28 +16,31 @@ void Cube_Retrieval::setup(){
     pinMode(LIMITSWITCH, INPUT);
     _clawMotor = AFMS.getMotor(3);
     AFMS.begin(); //Will need to be deleted when using this class within linefollower
-    _clawMotor -> run(RELEASE);
-    Serial.print("cube setup");
-    //pinMode(BUTTON3, INPUT);
 }
 
 bool Cube_Retrieval::pickUp() //code to pickup and detect block
-{
-    //Pick up block then return 1 if block hard
+{   
+    _clawMotor ->run(RELEASE);
     atEnd = false;
     _clawMotor -> setSpeed(baseSpeed);
     _pickupStart = millis();
     while (!atEnd){
+        Serial.print(" Switch not hit");
         _clawMotor -> run(BACKWARD);
-        if (digitalRead(LIMITSWITCH)){
+        Serial.print("LIFTING");
+        Serial.print(digitalRead(LIMITSWITCH));
+        if (!digitalRead(LIMITSWITCH)){
+            Serial.print("switch hit");
             _pickupEnd = millis();
             atEnd = true;
             _clawMotor -> run(RELEASE);
         }
     }
+    delay(2000);
     
-    if (_pickupEnd - _pickupStart <= 5000) _blockType = HARDBLOCK;
-    else _blockType = SOFTBLOCK;
+    /*if (_pickupEnd - _pickupStart <= 5000) _blockType = HARDBLOCK;
+    else _blockType = SOFTBLOCK;*/
+    _blockType = HARDBLOCK;
 
     return _blockType;
 }
@@ -64,20 +67,13 @@ void Cube_Retrieval::testTimer()
     _clawMotor -> setSpeed(baseSpeed);
     _pickupStart = millis();
     while (!atEnd){
-        Serial.print(" Switch not hit");
         _clawMotor -> run(BACKWARD);
-        Serial.print("LIFTING");
-        if (digitalRead(LIMITSWITCH)){
-            Serial.print("switch hit");
+        if (!digitalRead(LIMITSWITCH)){
             _pickupEnd = millis();
             atEnd = true;
             _clawMotor -> run(RELEASE);
         }
     }
-    delay(2000);
-    _clawMotor -> run(FORWARD);
-    delay(4500);
-    _clawMotor -> run(RELEASE);
 }
 
 void Cube_Retrieval::dropOff()
