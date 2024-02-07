@@ -2,7 +2,6 @@
 #include "Arduino.h"
 #include "ArduinoPinout.h"
 #include <SPI.h>
-#include "line_follower.h"
 #include "motor_setup.h"
 #define HARDBLOCK true
 #define SOFTBLOCK false
@@ -26,6 +25,5 @@ class Cube_Retrieval
     bool _blockType;
     uint32_t _pickupStart;
     uint32_t _pickupEnd;
-    //LEDs for cube detection    
-    
+    //LEDs for cube detection
 };

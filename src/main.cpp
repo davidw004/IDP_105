@@ -7,11 +7,23 @@ Line_Follower robot;
 void setup() {
   Serial.begin(9600);
   Serial.print("Setup");
-  //robot.setup();
-  //robot.exitbox();
+
+  //Set pinmode for moving led
+  pinMode(BLUELED, OUTPUT);
+  pinMode(GREENLED, OUTPUT);
+  pinMode(BUTTON1, INPUT);
+
+  robot.setup();
+  while (BUTTON1 == LOW){
+    delay(1000);
+  }
+  robot.exitbox();
+
   //cube.setup();
 }
-void loop(){
+void loop()
+{
+
   robot.go();
   //cube.test();
 }

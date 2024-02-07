@@ -22,10 +22,7 @@ void Line_Follower::setup()
     pinMode(LINESENSOR3, INPUT);
     pinMode(LINESENSOR4, INPUT);
 
-    //Set pinmode for moving led
-    pinMode(BLUELED, OUTPUT);
-    pinMode(REDLED, OUTPUT);
-    pinMode(GREENLED, OUTPUT);
+
 
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
@@ -43,8 +40,8 @@ void Line_Follower::exitbox()
     digitalWrite(BLUELED, HIGH);
 
     //Run motors forwards
-    _leftMotor->run(FORWARD); //motors are connected in reverse
-    _rightMotor->run(FORWARD); //motors are connected in reverse
+    _leftMotor->run(BACKWARD); //motors are connected in reverse
+    _rightMotor->run(BACKWARD); //motors are connected in reverse
 
     //Wait until exited box, ie central line sensors are past the white line
     delay(2000); //Fine tune duration
@@ -111,7 +108,7 @@ void Line_Follower::leftTurn()
 
     _leftMotor->run(FORWARD);
     _rightMotor->run(BACKWARD);
-    delay(200);
+    delay(800);
     _extremeLeftReading = digitalRead(LINESENSOR1);
     while(_extremeLeftReading != 1)
     {
@@ -129,7 +126,7 @@ void Line_Follower::rightTurn()
     _rightMotor -> setSpeed(baseSpeedRight);
     _leftMotor->run(BACKWARD);
     _rightMotor->run(FORWARD);   
-    delay(200);
+    delay(800);
     _extremeRightReading = digitalRead(LINESENSOR4);
     while(_extremeRightReading != 1)
     {
@@ -188,7 +185,8 @@ void Line_Follower::junction()
     switch(_currentRoute[pos])
     {
         case BLOCK:
-        {
+        {   
+            approachCube();
             _leftMotor->run(RELEASE);
             _rightMotor->run(RELEASE);
             //Collect block (call function as friend function)
