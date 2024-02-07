@@ -77,7 +77,6 @@ void Cube_Retrieval::dropOff()
 
 void Cube_Retrieval::prepare()
 {   
-    Serial.print("in function");
     _clawMotor -> setSpeed(baseSpeed);
     _clawMotor -> run(FORWARD);
     delay(5000);
