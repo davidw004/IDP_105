@@ -31,7 +31,6 @@ bool Cube_Retrieval::pickUp() //code to pickup and detect block
     
     if (_pickupEnd - _pickupStart <= 5000) _blockType = true;
     else _blockType = false;
-
     return _blockType;
 }
 

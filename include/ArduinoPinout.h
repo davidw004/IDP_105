@@ -8,3 +8,5 @@
 #define BUTTON2 9
 #define BUTTON3 10
 #define BLUELED 11 //indicates robot is moving
+#define GREENLED 12
+#define REDLED 13
