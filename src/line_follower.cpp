@@ -28,6 +28,7 @@ void Line_Follower::setup()
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
+    TimeOfFlight.Setup()
     
     AFMS.begin();
     _leftMotor->setSpeed(baseSpeedLeft);

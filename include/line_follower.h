@@ -4,11 +4,13 @@
 #include "motor_setup.h"
 #include "ArduinoPinout.h"
 #include "cube_retrieval.h"
+#include "TOFSensor.h"
 
 class Line_Follower {
 
     private:
         Cube_Retrieval cubeRetrieval;
+        TOFSensor TimeOfFlight;
 
     public:
         Line_Follower();
