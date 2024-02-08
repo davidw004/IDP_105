@@ -4,12 +4,17 @@ Line_Follower::Line_Follower()
 {
     maxSpeedLeft = 200;
     maxSpeedRight = 200;
-    baseSpeedLeft = 150;
-    baseSpeedRight = 150;
+    baseSpeedLeft = 175;
+    baseSpeedRight = 175;
+    turnSpeed = 125;
     baseSweepSpeed = 50;
     blocksCollected = 0;
     pos = 0;
     continueDelay = 500;
+    _correctionTime = 110;
+    _turnTime = 750;
+    _reverseTime = 2500;
+    _exitBoxTime = 400;
     _currentRoute = Routes::routeOne;
 }
 
@@ -79,7 +84,7 @@ void Line_Follower::exitbox()
         _rightReading = digitalRead(LINESENSOR3);
     }
     //Wait until exited box, ie central line sensors are past the white line
-    delay(500); //This puts the line sensors just over the white line. Fine tune duration
+    delay(_exitBoxTime); //This puts the line sensors just over the white line. Fine tune duration
     _leftMotor -> run(RELEASE);//stop car driving away. 
     _rightMotor -> run(RELEASE);
     /*if (digitalRead(LINESENSOR2) == 0 && digitalRead(LINESENSOR3) == 0){ //if not on line, find it. 
@@ -111,7 +116,7 @@ void Line_Follower::go()
     }
     else if (_leftReading == 1 && _rightReading == 0){ //If left high (white) and right low (black) then change motor speed to turn left
         turnStart = millis(); //get time at start and end of turn. 
-        _leftMotor -> setSpeed( 0.6 * baseSpeedLeft);
+        _leftMotor -> setSpeed( 0.5 * baseSpeedLeft);
         _rightMotor -> setSpeed(baseSpeedRight);
         //Run motors forwards
         _leftMotor->run(BACKWARD); //motors are connected in reverse
@@ -127,7 +132,7 @@ void Line_Follower::go()
         _leftMotor -> setSpeed(baseSpeedLeft);//i was reluctant to loop these terms, but i didnt want to mess up timing variable 
         _rightMotor -> run(FORWARD); //this is kind of wack but i think it will work
         Serial.print("second correction ");
-        delay(100);
+        delay(_correctionTime);
         _rightMotor -> run(RELEASE);
         _leftMotor -> run(RELEASE);
     }
@@ -136,7 +141,7 @@ void Line_Follower::go()
     { //If left high and right low then change motor speed to turn left
         turnStart = millis();
         _leftMotor -> setSpeed(baseSpeedLeft);
-        _rightMotor -> setSpeed(0.6 * baseSpeedRight);
+        _rightMotor -> setSpeed(0.5 * baseSpeedRight);
         //Run motors forwards
         _leftMotor->run(BACKWARD); //motors are connected in reverse
         _rightMotor->run(BACKWARD); //motors are connected in reverse
@@ -151,7 +156,7 @@ void Line_Follower::go()
         _rightMotor -> setSpeed(baseSpeedRight);
         _leftMotor -> run(FORWARD) ;
         Serial.print("second correction ");
-        delay(100);
+        delay(_correctionTime);
         _rightMotor -> run(RELEASE);
         _leftMotor -> run(RELEASE);
     }
@@ -167,8 +172,8 @@ void Line_Follower::go()
 
 void Line_Follower::leftTurn()
 {   
-    _rightMotor -> setSpeed(baseSpeedRight);
-    _leftMotor -> setSpeed(baseSpeedLeft);
+    _rightMotor -> setSpeed(turnSpeed);
+    _leftMotor -> setSpeed(turnSpeed);
     _leftMotor->run(FORWARD);
     _rightMotor->run(BACKWARD);
     delay(800);
@@ -182,14 +187,14 @@ void Line_Follower::leftTurn()
     //_rightMotor -> setSpeed(0.6 * baseSpeedRight);
     _rightMotor -> run(RELEASE);
     _leftMotor -> run(BACKWARD);
-    delay(250);
+    delay(_turnTime);
 
 }
 
 void Line_Follower::rightTurn()
 {
-    _leftMotor -> setSpeed(baseSpeedLeft);
-    _rightMotor -> setSpeed(baseSpeedRight);
+    _leftMotor -> setSpeed(turnSpeed);
+    _rightMotor -> setSpeed(turnSpeed);
     _leftMotor->run(BACKWARD);
     _rightMotor->run(FORWARD);   
     delay(800);
@@ -203,7 +208,7 @@ void Line_Follower::rightTurn()
     //_leftMotor -> setSpeed(0.6 * baseSpeedLeft);
     _leftMotor -> run(RELEASE);
     _rightMotor -> run(BACKWARD);
-    delay(250);
+    delay(_turnTime);
 }
 
 void Line_Follower::straight()
@@ -216,11 +221,14 @@ void Line_Follower::straight()
 }
 
 void Line_Follower::turn180()
-{
-    turnStart = millis();
+{   
+    _leftMotor -> setSpeed(turnSpeed);
+    _rightMotor -> setSpeed(turnSpeed);
     _leftMotor -> run(FORWARD);
     _rightMotor -> run(BACKWARD);
-    while (_extremeLeftReading == 0){ //TIME TURN TO 90 DEGREES.
+    turnStart = millis();
+    while (_extremeLeftReading == 0)
+    { //TIME TURN TO 90 DEGREES.
     _extremeLeftReading = digitalRead(LINESENSOR1);
     }
     turnMid = millis();
@@ -234,8 +242,9 @@ void Line_Follower::approachCube(uint32_t duration) //change duration to distanc
     //Currently just hard coding the distance from final turn to the block. Will likely need editing
     _leftMotor -> run(BACKWARD);
     _rightMotor -> run(BACKWARD);
+    delay(100);
     Serial.print("in approachcube ");
-    for( uint32_t tStart = millis();  (millis()-tStart) < duration;)
+    for(uint32_t tStart = millis();  (millis()-tStart) < duration;)
     {
         go();
     }
@@ -295,7 +304,8 @@ void Line_Follower::junction()
             _leftMotor->run(RELEASE);
             _rightMotor->run(RELEASE);
             cubeRetrieval.prepare();
-            approachCube(750);
+            if (blocksCollected == 0) approachCube(200);
+            else if (blocksCollected == 1) approachCube(200);
             //Collect block (call function as friend function)
             blockHard =  cubeRetrieval.pickUp();
             if (blockHard) digitalWrite(REDLED, HIGH);
@@ -323,7 +333,7 @@ void Line_Follower::junction()
         }
         case HOME:
         {
-            approachCube(3000); //this distance will change to ultrasound reading
+            approachCube(2000); //this distance will change to ultrasound reading
             _leftMotor->run(RELEASE);
             _rightMotor->run(RELEASE);
             //Drop off cube code (include travel certain duration)
@@ -350,7 +360,13 @@ void Line_Follower::junction()
                 }
                 
             }
-            
+            _leftMotor -> run(FORWARD);
+            _rightMotor -> run(FORWARD);
+            delay(_reverseTime);
+            _rightMotor -> run(RELEASE);
+            _leftMotor -> run(RELEASE);
+
+            cubeRetrieval.raiseClaw();
             turn180();
             pos = 0;
             break;

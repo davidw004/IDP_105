@@ -63,16 +63,10 @@ void Cube_Retrieval::raiseClaw()
 void Cube_Retrieval::dropOff()
 {   
     _clawMotor -> setSpeed(baseSpeed);
-    if (_blockType == HARDBLOCK)
-    {
-        _releaseTime = 5000;
-    }
-    else if (_blockType = SOFTBLOCK)
-    {
-        _releaseTime = 7000;
-    }
     _clawMotor -> run(FORWARD);
-    delay(_releaseTime);
+    delay(2000);
+    _clawMotor -> run(RELEASE);
+
 }
 
 void Cube_Retrieval::prepare()

@@ -30,6 +30,12 @@ class Line_Follower {
         uint8_t _extremeLeftReading, _leftReading, _rightReading, _extremeRightReading;
         uint8_t maxSpeedLeft, maxSpeedRight;
         uint8_t baseSpeedLeft, baseSpeedRight, baseSweepSpeed;
+        uint8_t turnSpeed;
+        
+        uint32_t _correctionTime;
+        uint32_t _turnTime, _reverseTime;
+        uint32_t _exitBoxTime;
+
         bool blockHard;
         uint8_t blocksCollected;
         uint8_t pos;
