@@ -3,15 +3,15 @@
 Cube_Retrieval::Cube_Retrieval()
 {
     baseSpeed = 250;
-    startTime = 0;
     closingSpeed = 250;
     _pickupStart = 0;
     _pickupEnd = 0;
     _releaseTime = 1000;
-    atEnd = false;
+    _atEnd = false;
 }
 
-void Cube_Retrieval::setup(){
+void Cube_Retrieval::setup()
+{
     pinMode(BUTTON1, INPUT);
     pinMode(BUTTON2, INPUT);
     pinMode(LIMITSWITCH, INPUT);
@@ -21,17 +21,18 @@ void Cube_Retrieval::setup(){
 
 bool Cube_Retrieval::pickUp() //code to pickup and detect block
 {   
-    raiseClaw();
-    //logic to detect cube
-    
-    /*if (_pickupEnd - _pickupStart <= 5000) _blockType = HARDBLOCK;
-    else _blockType = SOFTBLOCK;*/
-    _blockType = HARDBLOCK;
+    //logic to detect cube and display LEDs
+    _blockType = detectCube();
+    if (_blockType == HARDBLOCK) digitalWrite(REDLED, HIGH);
+    else digitalWrite(GREENLED, HIGH);
 
+    //Pick up block
+    raiseClaw();
     return _blockType;
 }
 
-void Cube_Retrieval::test(){
+void Cube_Retrieval::test()
+{
     Serial.print(" testing");
     _clawMotor -> setSpeed(baseSpeed);
     if (digitalRead(BUTTON1) == HIGH) {
@@ -47,20 +48,27 @@ void Cube_Retrieval::test(){
     }
 }
 
-void Cube_Retrieval::raiseClaw()
+void Cube_Retrieval::raiseClaw() //Closes then raises claw
 {   
-    atEnd = false;
+    _atEnd = false;
     _clawMotor -> setSpeed(baseSpeed);
-    while (!atEnd){
+    while (!_atEnd){
         _clawMotor -> run(BACKWARD);
-        if (!digitalRead(LIMITSWITCH)){
-            atEnd = true;
+        if (!digitalRead(LIMITSWITCH))
+        {
+            _atEnd = true;
             _clawMotor -> run(RELEASE);
         }
     }
 }
 
-void Cube_Retrieval::dropOff()
+bool Cube_Retrieval::detectCube() //Can be ran for both commercial and industrial
+{
+    if (analogRead(ULTRASOUND) < 200) return HARDBLOCK;
+    else return SOFTBLOCK;
+}
+
+void Cube_Retrieval::dropOff() //Drops block into home
 {   
     _clawMotor -> setSpeed(baseSpeed);
     _clawMotor -> run(FORWARD);
@@ -69,10 +77,10 @@ void Cube_Retrieval::dropOff()
 
 }
 
-void Cube_Retrieval::prepare()
+void Cube_Retrieval::prepare(uint16_t duration) //Pass in duration, smaller for commercial zone
 {   
     _clawMotor -> setSpeed(baseSpeed);
     _clawMotor -> run(FORWARD);
-    delay(7500);
+    delay(duration);
     _clawMotor-> run(RELEASE);   
 }

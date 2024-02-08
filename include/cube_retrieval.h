@@ -12,10 +12,11 @@ class Cube_Retrieval
     Cube_Retrieval();
     void setup();
     bool pickUp();
+    bool detectCube();
     void dropOff();
     void test();
     void raiseClaw();
-    void prepare();
+    void prepare(uint16_t duration);
 
 
     private:
@@ -26,8 +27,6 @@ class Cube_Retrieval
     uint32_t _pickupEnd;
     uint32_t _releaseTime;
     Adafruit_DCMotor *_clawMotor;
-    uint8_t buttonState;
-    uint32_t startTime;
-    bool atEnd;
+    bool _atEnd;
     bool _blockType;
 };
