@@ -22,7 +22,7 @@ class Line_Follower {
         void rightTurn();
         void straight();
         void turn180();
-        void approachCube();
+        void approachCube(uint32_t duration);
         void stop();
         void junction();
 
@@ -37,7 +37,6 @@ class Line_Follower {
         uint32_t turnStart, turnEnd, turnMid;
         uint8_t timeFactor;
         uint32_t turnDelay, continueDelay;
-        bool isPickingUpCube, isReturningCube;
         Adafruit_DCMotor *_leftMotor, *_rightMotor;
         const Decision *_currentRoute;
 };

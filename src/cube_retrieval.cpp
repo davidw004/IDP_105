@@ -4,7 +4,7 @@ Cube_Retrieval::Cube_Retrieval()
 {
     baseSpeed = 250;
     startTime = 0;
-    closingSpeed = 200;
+    closingSpeed = 250;
     _pickupStart = 0;
     _pickupEnd = 0;
     _releaseTime = 1000;
@@ -79,6 +79,6 @@ void Cube_Retrieval::prepare()
 {   
     _clawMotor -> setSpeed(baseSpeed);
     _clawMotor -> run(FORWARD);
-    delay(5000);
+    delay(7500);
     _clawMotor-> run(RELEASE);   
 }
