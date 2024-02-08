@@ -7,8 +7,6 @@ void setup() {
   Serial.begin(9600);
   robot.setup();
   robot.exitbox();
-  
-  //cube.testTimer();
 }
 void loop()
 {
