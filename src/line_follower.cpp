@@ -38,7 +38,7 @@ void Line_Follower::setup()
     _leftMotor->setSpeed(baseSpeedLeft);
     _rightMotor->setSpeed(baseSpeedRight);
 
-    timeFactor = 0.3; //modify this value according to line adjustment required. 
+    timeFactor = 0.25; //modify this value according to line adjustment required. 
 }
 
 //TUNE TIME OF SWEEP AND MOTOR SPEEDS 
@@ -122,7 +122,7 @@ void Line_Follower::go()
     }
     else if (_leftReading == 1 && _rightReading == 0){ //If left high (white) and right low (black) then change motor speed to turn left
         turnStart = millis(); //get time at start and end of turn. 
-        _leftMotor -> setSpeed( 0.1 * baseSpeedLeft);
+        _leftMotor -> setSpeed( 0.6 * baseSpeedLeft);
         _rightMotor -> setSpeed(baseSpeedRight);
         //Run motors forwards
         _leftMotor->run(BACKWARD); //motors are connected in reverse
@@ -136,16 +136,18 @@ void Line_Follower::go()
         turnEnd = millis();
         //while ((millis()-turnEnd)<((turnEnd-turnStart)*timeFactor)){ //reRun motors in opposite turn direction to correct. 
         _leftMotor -> setSpeed(baseSpeedLeft);//i was reluctant to loop these terms, but i didnt want to mess up timing variable 
-        _rightMotor -> setSpeed(baseSpeedRight * 0.3); //this is kind of wack but i think it will work
+        _rightMotor -> run(FORWARD); //this is kind of wack but i think it will work
         Serial.print("second correction ");
-        delay((turnEnd-turnStart)*timeFactor);
+        delay(500);
+        _rightMotor -> run(RELEASE);
+        _leftMotor -> run(RELEASE);
     }
     
     else if (_leftReading == 0 && _rightReading == 1)
     { //If left high and right low then change motor speed to turn left
         turnStart = millis();
         _leftMotor -> setSpeed(baseSpeedLeft);
-        _rightMotor -> setSpeed(0.1 * baseSpeedRight);
+        _rightMotor -> setSpeed(0.6 * baseSpeedRight);
         //Run motors forwards
         _leftMotor->run(BACKWARD); //motors are connected in reverse
         _rightMotor->run(BACKWARD); //motors are connected in reverse
@@ -156,10 +158,12 @@ void Line_Follower::go()
             Serial.print("correction from right");
         }
         turnEnd = millis();
-        _leftMotor -> setSpeed(0.3 * baseSpeedLeft) ;
+        _leftMotor -> run(FORWARD) ;
         _rightMotor -> setSpeed(baseSpeedRight);
         Serial.print("second correction ");
-        delay((turnEnd-turnStart)*timeFactor);
+        delay(500);
+        _rightMotor -> run(RELEASE);
+        _leftMotor -> run(RELEASE);
     }
     else
     {
@@ -176,6 +180,7 @@ void Line_Follower::leftTurn()
     _rightMotor -> setSpeed(baseSpeedRight);
     _leftMotor -> setSpeed(baseSpeedLeft);
 
+
     _leftMotor->run(FORWARD);
     _rightMotor->run(BACKWARD);
     delay(800);
@@ -186,7 +191,7 @@ void Line_Follower::leftTurn()
         _rightMotor->run(BACKWARD);   
         _extremeLeftReading = digitalRead(LINESENSOR1);   
     }
-    _rightMotor -> setSpeed(0.3 * baseSpeedRight);
+    _rightMotor -> setSpeed(0.8 * baseSpeedRight);
     _rightMotor -> run(BACKWARD);
     _leftMotor -> run(BACKWARD);
     delay(400);
