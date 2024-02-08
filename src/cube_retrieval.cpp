@@ -15,6 +15,7 @@ void Cube_Retrieval::setup()
     pinMode(BUTTON1, INPUT);
     pinMode(BUTTON2, INPUT);
     pinMode(LIMITSWITCH, INPUT);
+    pinMode(ULTRASOUND, INPUT);
     _clawMotor = AFMS.getMotor(3);
     AFMS.begin(); //Will need to be deleted when using this class within linefollower
 }
