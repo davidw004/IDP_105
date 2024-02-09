@@ -13,4 +13,8 @@ namespace Routes {
     //Return routes 2
     Decision returnTwoGreen[5] = {LEFT, STRAIGHT, LEFT, STRAIGHT, HOME};
     Decision returnTwoRed[4] = {RIGHT, RIGHT, STRAIGHT, HOME};
+
+    //Block 3
+    Decision routeThreeRed[4] = {STRAIGHT, LEFT, LEFT, BLOCK};
+    Decision routeThreeGreen[5] = {STRAIGHT, RIGHT, STRAIGHT, RIGHT, BLOCK};
 };
