@@ -30,14 +30,10 @@ void Line_Follower::setup()
     pinMode(REDLED, OUTPUT);
     pinMode(GREENLED, OUTPUT);
     pinMode(BLUELED, OUTPUT);
-//this has been moved
-    
 
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
-    
-    AFMS.begin();
     cubeRetrieval.raiseClaw();
     _leftMotor->setSpeed(baseSpeedLeft);
     _rightMotor->setSpeed(baseSpeedRight);
@@ -51,7 +47,8 @@ void Line_Follower::sweep(){ //FINDS LINE. ONLY WORKS IF LINE IS BETWEEN INNER A
     _leftMotor -> run(FORWARD);
     _rightMotor -> run(BACKWARD); //sweeping left    
     _startTime = millis();
-    while ((millis()-_startTime) < 1000){  //sweep for a second 
+    for(uint32_t _startTime = millis();  (millis() - _startTime) < 1000;) //Replace this with while ultrasound less than distance passed to func
+    {
         _extremeLeftReading = digitalRead(LINESENSOR1);
         _extremeRightReading = digitalRead(LINESENSOR4); 
         if (_extremeRightReading == 1 ){ //line to the right of the robot 
@@ -61,12 +58,15 @@ void Line_Follower::sweep(){ //FINDS LINE. ONLY WORKS IF LINE IS BETWEEN INNER A
             }
         }
         else if (_extremeLeftReading == 1){ //line to left of robot
-            while(digitalRead(LINESENSOR2)== 0) { //drive torwards line until hit. 
+            while(digitalRead(LINESENSOR2) == 0) { //drive torwards line until hit. 
                 _leftMotor -> run(BACKWARD);
                 _leftMotor -> setSpeed(baseSweepSpeed);
             }
         }
-    }    
+    }
+    /*while ((millis()-_startTime) < 1000){  //sweep for a second 
+
+    } */   
 }
 
 //TUNE DELAY 
@@ -155,7 +155,7 @@ void Line_Follower::go()
     }
     else
     {
-        stop();
+        sweep();
         digitalWrite(BLUELED, LOW);
     }
 

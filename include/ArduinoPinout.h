@@ -5,7 +5,7 @@
 #define REDLED 6 //indicates robot is moving
 #define GREENLED 7
 #define BLUELED 8
-#define BUTTON1 9 //test button
-#define LIMITSWITCH 10
-#define BUTTON2 10 //Not currently used
-#define ULTRASOUND 13
+#define LIMITSWITCH 9 //test button
+#define LIMITSWITCH2 10
+#define BUTTON1 11 //Not currently used
+#define ULTRASOUND A0

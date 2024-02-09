@@ -3,12 +3,15 @@
 #include "cube_retrieval.h"
 
 Line_Follower robot;
+//Cube_Retrieval cube;
 void setup() {
   Serial.begin(9600);
   robot.setup();
   robot.exitbox();
+  //cube.setup();
 }
 void loop()
 {
+  //cube.test();
   robot.go();
 }

@@ -13,11 +13,11 @@ Cube_Retrieval::Cube_Retrieval()
 void Cube_Retrieval::setup()
 {
     pinMode(BUTTON1, INPUT);
-    pinMode(BUTTON2, INPUT);
+    //pinMode(BUTTON2, INPUT);
     pinMode(LIMITSWITCH, INPUT);
     pinMode(ULTRASOUND, INPUT);
     _clawMotor = AFMS.getMotor(3);
-    AFMS.begin(); //Will need to be deleted when using this class within linefollower
+    AFMS.begin();
 }
 
 bool Cube_Retrieval::pickUp() //code to pickup and detect block
@@ -32,22 +32,19 @@ bool Cube_Retrieval::pickUp() //code to pickup and detect block
     return _blockType;
 }
 
-void Cube_Retrieval::test()
+/*void Cube_Retrieval::test()
 {
-    Serial.print(" testing");
     _clawMotor -> setSpeed(baseSpeed);
     if (digitalRead(BUTTON1) == HIGH) {
         _clawMotor -> run(BACKWARD);
-         Serial.print("BUTTON HIGH");
     }
     else if (digitalRead(BUTTON2) == HIGH){
         _clawMotor -> run(FORWARD);
-         Serial.print("BUTT LOW");
      }
     else {
         _clawMotor -> run(RELEASE);
     }
-}
+}*/
 
 void Cube_Retrieval::raiseClaw() //Closes then raises claw
 {   
