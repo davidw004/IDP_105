@@ -113,17 +113,17 @@ void Line_Follower::go()
 {
     readAllLFSensors();
     
-    if (_extremeLeftReading == 1 || _extremeRightReading == 1)
+    /*if (_extremeLeftReading == 1 || _extremeRightReading == 1)
     {
         junction();
-    }
+    }*/
 
     //If both middle sensors black keep driving at maxspeed
-    /*if (_leftReading == 1 && _rightReading == 1)
+    if (_leftReading == 1 && _rightReading == 1)
     {        
         motorDrive(baseSpeed, baseSpeed);
-    }*/
-    
+    }
+
     else if (_leftReading == 1 && _rightReading == 0){ //If left high (white) and right low (black) then change motor speed to turn left
         Serial.print("adjusting left ");
         adjust(LEFT);
@@ -147,13 +147,13 @@ void Line_Follower::adjust(int direction)
     if (direction = LEFT)
     {   
         Serial.print("in adjusting left block ");
-        motorDrive(baseSpeed - (_correctionFactor * baseSpeed), baseSpeed);       
+        motorDrive(0, baseSpeed);       
     }
 
     else if (direction = RIGHT)
     {
         Serial.print("in adjusting right block ");
-        motorDrive(baseSpeed, baseSpeed - (_correctionFactor * baseSpeed));  
+        motorDrive(baseSpeed, 0);  
     }
     //delay(_correctionTime);
 
