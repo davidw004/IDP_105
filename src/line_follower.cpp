@@ -3,21 +3,21 @@
 Line_Follower::Line_Follower()
 {
     maxSpeed = 200;
-    baseSpeed = 250;
-    turnSpeed = 175;
-    baseSweepSpeed = 50;
+    baseSpeed = 200;
+    turnSpeed = 125;
+    baseSweepSpeed = 75;
     _correctionFactor = 0.2;
     _blocksCollected = 0;
     _continueDelay = 500;
     _turnDelay = 800;
     _correctionTime = 20;
-    _turnTime = 300;
+    _turnTime = 200;
     _reverseTime = 2500;
     _exitBoxTime = 300;
     _timeFactor = 0.25; //modify this value according to line adjustment required.
     _commercialPrepare = 7500;
 
-    _currentRoute = Routes::CollectBlockOne;
+    _currentRoute = Routes::CollectBlockOne; //changed to test
     pos = 0;
 }
 
@@ -203,7 +203,7 @@ void Line_Follower::rightTurn()
     delay(_turnTime);
 }
 
-void Line_Follower::exitCorrection()
+void Line_Follower::exitAdjustment()
 {
     motorDrive(baseSpeed, baseSpeed);
     delay(200);
@@ -225,7 +225,7 @@ void Line_Follower::turn180()
     _extremeLeftReading = digitalRead(LINESENSOR1);
     }
     _turnMid = millis();
-    delay(_turnMid - _turnStart); //CONTINUES TURN FOR SAME TIME IT TOOK TO REACH 90 DEGREES
+    delay((_turnMid - _turnStart)); //CONTINUES TURN FOR SAME TIME IT TOOK TO REACH 90 DEGREES
     stop();
 }
 
@@ -274,12 +274,14 @@ void Line_Follower::approachCube(uint32_t duration) //change duration to distanc
 {   
     Serial.print("in approach cube func ");
     //Currently just hard coding the distance from final turn to the block. Will likely need editing
-    motorDrive(baseSpeed, baseSpeed);
-    delay(100); //Clearing the white line to prevent junction detection when go() called
+    motorDrive(baseSweepSpeed, baseSweepSpeed);
+    delay(200); //Clearing the white line to prevent junction detection when go() called
+    baseSpeed = 100;
     for(uint32_t tStart = millis();  (millis()-tStart) < duration;) //Replace this with while ultrasound less than distance passed to func
     {
         go();
     }
+    baseSpeed = 200;
     stop();
 
 }
@@ -337,7 +339,7 @@ void Line_Follower::junction()
             Serial.print("returned from stop");
             cubeRetrieval.prepare(); //7500 for commercial zone pickup, change to limit switch
 
-            if (_blocksCollected == 0) approachCube(350);
+            if (_blocksCollected == 0) approachCube(1250); //note at slow speed
             else if (_blocksCollected == 1) approachCube(100); //Instead change duration 100 to a distance (while )
             //Either more else ifs or potentially add new switch case for industrial blocks
 
@@ -502,7 +504,7 @@ void Line_Follower::junction()
 
         default:
         {
-            exitCorrection();
+            exitAdjustment();
             break;
         }
     }

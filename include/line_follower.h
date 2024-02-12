@@ -27,7 +27,7 @@ class Line_Follower {
         void adjust(int direction);
         void leftTurn();
         void rightTurn();
-        void exitCorrection();
+        void exitAdjustment();
         void straight();
         void turn180();
         void turn90(bool left, bool OnJunction);
