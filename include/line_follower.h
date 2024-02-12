@@ -30,6 +30,8 @@ class Line_Follower {
         void exitCorrection();
         void straight();
         void turn180();
+        void turn90(bool left, bool OnJunction);
+        void driveForwardBaseSpeed(int time_ms);
         void approachCube(uint32_t duration);
         void approachHome(uint32_t distance);
         void stop();

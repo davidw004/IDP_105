@@ -223,6 +223,47 @@ void Line_Follower::turn180()
     stop();
 }
 
+
+void Line_Follower::turn90(bool left, bool OnJunction)
+{
+    if (!OnJunction)
+    {
+        if (left)
+        {
+            motorDrive(-turnSpeed, turnSpeed);
+            while (_extremeLeftReading == 0)
+            { // TURN 90 DEGREES.
+
+            }
+            stop();
+        }
+        else
+        {
+            motorDrive(turnSpeed, -turnSpeed);
+            while (_extremeRightReading == 0)
+            { // TURN 90 DEGREES.
+
+            }
+            stop();
+        }
+        return;
+    }
+    else
+    {
+        return;
+    }
+}
+
+void Line_Follower::driveForwardBaseSpeed(int time_ms)
+{
+    auto Start_Time = millis();
+    while (millis() < Start_Time + time_ms) // drive forward for a configured bit to get into factory
+    {
+        motorDrive(baseSpeed, baseSpeed);
+    }
+    stop();
+}
+
 void Line_Follower::approachCube(uint32_t duration) //change duration to distance using ultrasound
 {
     //Currently just hard coding the distance from final turn to the block. Will likely need editing
@@ -369,7 +410,18 @@ void Line_Follower::junction()
 
         case ENTERLUCOZADE:
         {
-            //approach and collect from lucozade zone
+            // drive forward until in front of factory
+            int LucozadeDist = 10;
+            while (TimeOfFlight.GetDistance() > LucozadeDist)
+            {
+                motorDrive(baseSpeed, baseSpeed);
+            }
+            driveForwardBaseSpeed(200); // drive past start of factory for pre-defined ms to position
+            stop();
+
+            // We are positioned in front of the gate now
+            turn90(true, false);
+            driveForwardBaseSpeed(100);
             break;
         }
         
@@ -380,11 +432,8 @@ void Line_Follower::junction()
             {
                 motorDrive(-baseSpeed, -baseSpeed);
             }
-            motorDrive(0, 0);
-            // turn to left on line:
-
-
-            break;
+            stop();
+            turn90(true, false);
         }
 
         default:
