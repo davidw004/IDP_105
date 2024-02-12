@@ -113,11 +113,12 @@ void Line_Follower::motorDrive(uint8_t lspeed, uint8_t rspeed)
 void Line_Follower::go()
 {
     readAllLFSensors();
-    //should this code be deleted
-    if (_extremeLeftReading == 1 || _extremeRightReading == 1){
+    
+    if (_extremeLeftReading == 1 || _extremeRightReading == 1)
+    {
         junction();
     }
-       
+
     //If both middle sensors black keep driving at maxspeed
     if (_leftReading == 1 && _rightReading == 1)
     {        
@@ -126,16 +127,26 @@ void Line_Follower::go()
     else if (_leftReading == 1 && _rightReading == 0){ //If left high (white) and right low (black) then change motor speed to turn left
         adjust(LEFT);
     }
-    
     else if (_leftReading == 0 && _rightReading == 1)
     { //If left high and right low then change motor speed to turn left
         adjust(RIGHT);
     }
-    else
+    else if (_leftReading == 0 && _rightReading == 0)
+    {
+        while (_extremeLeftReading == 0 && _extremeRightReading == 0)
+        {
+            motorDrive(baseSpeed, baseSpeed);
+            readAllLFSensors();
+        }
+        motorDrive(0, 0);
+        junction();
+    }
+
+    /*else
     {
         sweep();
         digitalWrite(BLUELED, LOW);
-    }
+    }*/
 
     //For error, keep track of which value was last white and recorrecr
 }
@@ -175,16 +186,12 @@ void Line_Follower::leftTurn()
     _extremeLeftReading = digitalRead(LINESENSOR1);
     while(_extremeLeftReading != 1)
     {
-        //_leftMotor->run(FORWARD);
-        //_rightMotor->run(BACKWARD);   
         _extremeLeftReading = digitalRead(LINESENSOR1);   
     }
     //_rightMotor -> setSpeed(0.6 * baseSpeed);
     
-    _rightMotor -> run(RELEASE); //This bit needs tuning
-    _leftMotor -> run(BACKWARD);
+    motorDrive(turnSpeed, 0);
     delay(_turnTime);
-
 }
 
 void Line_Follower::rightTurn()
@@ -197,9 +204,7 @@ void Line_Follower::rightTurn()
         _extremeRightReading = digitalRead(LINESENSOR4);
     }
     //_leftMotor -> setSpeed(0.6 * baseSpeed);
-
-    _leftMotor -> run(RELEASE); //needs tuning
-    _rightMotor -> run(BACKWARD);
+    motorDrive(0, turnSpeed);
     delay(_turnTime);
 }
 
