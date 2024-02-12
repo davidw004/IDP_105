@@ -3,19 +3,19 @@
 Line_Follower::Line_Follower()
 {
     maxSpeed = 200;
-    baseSpeed = 175;
-    baseSpeed = 175;
-    turnSpeed = 125;
+    baseSpeed = 250;
+    turnSpeed = 175;
     baseSweepSpeed = 50;
-    _correctionFactor = 1.0;
+    _correctionFactor = 0.2;
     _blocksCollected = 0;
     _continueDelay = 500;
     _turnDelay = 800;
     _correctionTime = 20;
-    _turnTime = 500;
+    _turnTime = 300;
     _reverseTime = 2500;
     _exitBoxTime = 300;
     _timeFactor = 0.25; //modify this value according to line adjustment required.
+    _commercialPrepare = 7500;
 
     _currentRoute = Routes::CollectBlockOne;
     pos = 0;
@@ -66,9 +66,7 @@ void Line_Follower::sweep(){ //FINDS LINE. ONLY WORKS IF LINE IS BETWEEN INNER A
             }
         }
     }
-    /*while ((millis()-_startTime) < 1000){  //sweep for a second 
-
-    } */   
+ 
 }
 
 //TUNE DELAY 
@@ -113,10 +111,11 @@ void Line_Follower::go()
 {
     readAllLFSensors();
     
-    /*if (_extremeLeftReading == 1 || _extremeRightReading == 1)
-    {
+    if (_extremeLeftReading == 1 || _extremeRightReading == 1)
+    {   
+        Serial.print("junction detected");
         junction();
-    }*/
+    }
 
     //If both middle sensors black keep driving at maxspeed
     if (_leftReading == 1 && _rightReading == 1)
@@ -126,12 +125,12 @@ void Line_Follower::go()
 
     else if (_leftReading == 1 && _rightReading == 0){ //If left high (white) and right low (black) then change motor speed to turn left
         Serial.print("adjusting left ");
-        adjust(LEFT);
+        adjust(LEFTTURN);
     }
     else if (_leftReading == 0 && _rightReading == 1)
     { //If left high and right low then change motor speed to turn left
         Serial.print("adjusting right ");
-        adjust(RIGHT);
+        adjust(RIGHTTURN);
     }
     else if (_leftReading == 0 && _rightReading == 0)
     {
@@ -144,16 +143,16 @@ void Line_Follower::adjust(int direction)
 {
     //If left high (white) and right low (black) then change motor speed to turn left
     //_turnStart = millis(); //get time at start and end of turn. 
-    if (direction = LEFT)
+    if (direction == LEFTTURN)
     {   
         Serial.print("in adjusting left block ");
-        motorDrive(0, baseSpeed);       
+        motorDrive(_correctionFactor * baseSpeed, baseSpeed);       
     }
 
-    else if (direction = RIGHT)
+    else if (direction == RIGHTTURN)
     {
         Serial.print("in adjusting right block ");
-        motorDrive(baseSpeed, 0);  
+        motorDrive(baseSpeed, _correctionFactor * baseSpeed);  
     }
     //delay(_correctionTime);
 
@@ -171,7 +170,11 @@ void Line_Follower::adjust(int direction)
 
 void Line_Follower::leftTurn()
 {   
-    motorDrive(-turnSpeed, turnSpeed);
+    Serial.print("turning left now");
+    motorDrive(turnSpeed, turnSpeed);
+    _leftMotor -> run(FORWARD);
+    _rightMotor -> run(BACKWARD);
+
     delay(_turnDelay);
     _extremeLeftReading = digitalRead(LINESENSOR1);
     while(_extremeLeftReading != 1)
@@ -186,7 +189,9 @@ void Line_Follower::leftTurn()
 
 void Line_Follower::rightTurn()
 {
-    motorDrive(turnSpeed, -turnSpeed); 
+    motorDrive(turnSpeed, turnSpeed); 
+    _leftMotor -> run(BACKWARD);
+    _rightMotor -> run(FORWARD);
     delay(_turnDelay);
     _extremeRightReading = digitalRead(LINESENSOR4);
     while(_extremeRightReading != 1)
@@ -212,7 +217,8 @@ void Line_Follower::straight()
 
 void Line_Follower::turn180()
 {      
-    motorDrive(-turnSpeed, turnSpeed);
+    motorDrive(turnSpeed, turnSpeed);
+    _leftMotor -> run(FORWARD);
     _turnStart = millis();
     while (_extremeLeftReading == 0)
     { //TIME TURN TO 90 DEGREES.
@@ -224,7 +230,8 @@ void Line_Follower::turn180()
 }
 
 void Line_Follower::approachCube(uint32_t duration) //change duration to distance using ultrasound
-{
+{   
+    Serial.print("in approach cube func ");
     //Currently just hard coding the distance from final turn to the block. Will likely need editing
     motorDrive(baseSpeed, baseSpeed);
     delay(100); //Clearing the white line to prevent junction detection when go() called
@@ -254,11 +261,13 @@ void Line_Follower::approachHome(uint32_t distance)
 }
 
 void Line_Follower::junction()
-{
+{   
+    Serial.print("in junction func");
+    Serial.print(_currentRoute[pos]);
     switch (_currentRoute[pos])
     {  
         case LEFT:
-        {
+        {   
             leftTurn();
             break;
         }
@@ -281,11 +290,13 @@ void Line_Follower::junction()
     switch(_currentRoute[pos])
     {   
         case BLOCK:
-        {
+        {   
+            Serial.print("in block section");
             stop();
-            cubeRetrieval.prepare(7500); //7500 for commercial zone pickup, change to limit switch
+            Serial.print("returned from stop");
+            cubeRetrieval.prepare(); //7500 for commercial zone pickup, change to limit switch
 
-            if (_blocksCollected == 0) approachCube(200);
+            if (_blocksCollected == 0) approachCube(350);
             else if (_blocksCollected == 1) approachCube(100); //Instead change duration 100 to a distance (while )
             //Either more else ifs or potentially add new switch case for industrial blocks
 
@@ -337,7 +348,9 @@ void Line_Follower::junction()
                 
             }
 
-            motorDrive(-baseSpeed, -baseSpeed);
+            motorDrive(baseSpeed, baseSpeed);
+            _leftMotor -> run(FORWARD);
+            _rightMotor -> run(FORWARD);
             delay(_reverseTime);
             stop();
 
@@ -358,7 +371,10 @@ void Line_Follower::junction()
             // reverse until hit white line:
             while (_extremeLeftReading == 0 && _extremeRightReading == 0)
             {
-                motorDrive(-baseSpeed, -baseSpeed);
+                motorDrive(baseSpeed, baseSpeed);
+                _leftMotor -> run(FORWARD);
+                _rightMotor -> run(FORWARD);
+                
             }
             motorDrive(0, 0);
 
@@ -378,7 +394,9 @@ void Line_Follower::junction()
             // reverse until hit white line:
             while (_extremeLeftReading == 0 && _extremeRightReading == 0)
             {
-                motorDrive(-baseSpeed, -baseSpeed);
+                motorDrive(baseSpeed, baseSpeed);
+                _leftMotor -> run(FORWARD);
+                _rightMotor -> run(FORWARD);
             }
             motorDrive(0, 0);
             // turn to left on line:
@@ -399,6 +417,7 @@ void Line_Follower::stop()
 {
     _rightMotor -> run(RELEASE);
     _leftMotor -> run(RELEASE);
+    Serial.print("stopping ");
 }
 
 void Line_Follower::ledsOff()

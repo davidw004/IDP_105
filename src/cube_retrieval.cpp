@@ -86,9 +86,10 @@ void Cube_Retrieval::dropOff() //Drops block into home
     _clawMotor -> run(RELEASE);
 }
 
-void Cube_Retrieval::prepare(uint16_t duration = 0) //Pass in duration, smaller for commercial zone
+void Cube_Retrieval::prepare() //Pass in duration, smaller for commercial zone
 {   
-    if (duration = 0)
+    Serial.print("in prepare func ");
+    /*if (duration == 0)
     {
         _atEnd = false;
         _clawMotor -> setSpeed(baseSpeed);
@@ -100,18 +101,9 @@ void Cube_Retrieval::prepare(uint16_t duration = 0) //Pass in duration, smaller 
                 _clawMotor -> run(RELEASE);
             }
         }
-    }
-    else 
-    {
-        _clawMotor -> setSpeed(baseSpeed);
-        _clawMotor -> run(FORWARD);
-        delay(duration);
-        _clawMotor-> run(RELEASE);  
-    }
-}
-/*
+    }*/
     _clawMotor -> setSpeed(baseSpeed);
     _clawMotor -> run(FORWARD);
-    delay(duration);
-    _clawMotor-> run(RELEASE);
-    */   
+    delay(7500);
+    _clawMotor-> run(RELEASE);  
+}

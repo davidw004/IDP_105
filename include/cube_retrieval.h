@@ -18,8 +18,7 @@ class Cube_Retrieval
     void ultrasoundTest();
     float readUltrasound();
     void raiseClaw();
-    void prepare(uint16_t duration);
-
+    void prepare();
 
     private:
     //member variables:

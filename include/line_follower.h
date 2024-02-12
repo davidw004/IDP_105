@@ -7,8 +7,8 @@
 #include "TOFSensor.h"
 
 // Defining directions
-#define RIGHT 1
-#define LEFT -1
+#define RIGHTTURN 1
+#define LEFTTURN -1
 
 class Line_Follower {
 
@@ -52,6 +52,7 @@ class Line_Follower {
         uint16_t _correctionTime;
         uint16_t _turnTime, _reverseTime;
         uint16_t _exitBoxTime;
+        uint16_t _commercialPrepare;
 
         //Time for within functions
         uint32_t _startTime;
