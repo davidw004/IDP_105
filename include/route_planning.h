@@ -6,6 +6,7 @@ namespace Routes {
 
     // Block 1
     extern Decision CollectBlockOne[3];
+
     //Return routes 1
     extern Decision BringBlockOneToGreen[3];
     extern Decision BringBlockOneToRed[4];
@@ -22,8 +23,14 @@ namespace Routes {
     extern Decision CollectBlockSFromRed[3];
     extern Decision CollectBlockSFromGreen[5];
     //Return routes 2
-    extern Decision returnFourGreen[5];
-    extern Decision returnFourRed[4];
+    extern Decision BringBlockSToGreen[6];
+    extern Decision BringBlockSToRed[7];
+
+    extern Decision CollectBlockLFromRed[5];
+    extern Decision CollectBlockLFromGreen[4];
+    // Return Lucozade
+    extern Decision ReturnBlockLToGreen[5];
+    extern Decision ReturnBlockLToRed[6];
 };
 //malloc
 //free
