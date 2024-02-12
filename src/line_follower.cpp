@@ -17,7 +17,7 @@ Line_Follower::Line_Follower()
     _exitBoxTime = 400;
     _timeFactor = 0.25; //modify this value according to line adjustment required.
 
-    _currentRoute = Routes::routeOne;
+    _currentRoute = Routes::CollectBlockOne;
     pos = 0;
 }
 
@@ -360,13 +360,13 @@ void Line_Follower::junction()
             break;
         }
 
-        case SWAN:
+        case ENTERSWAN:
         {
             //approach and collect from swan zone
             break;
         }
 
-        case LUCOZADE:
+        case ENTERLUCOZADE:
         {
             //approach and collect from lucozade zone
             break;
