@@ -30,7 +30,7 @@ class Line_Follower {
         void straight(uint16_t duration);
         void turn180();
         void turn90(bool left, bool OnJunction);
-        void driveForwardBaseSpeed(int time_ms);
+        void driveForwardApproachSpeed(int time_ms);
         void approachCube(uint32_t duration);
         void approachHome(uint32_t distance);
         void stop();
@@ -51,7 +51,7 @@ class Line_Follower {
         
         //Timings for functions
         uint16_t _correctionTime;
-        uint16_t _turnTime, _reverseTime;
+        uint16_t _reverseTime;
         uint16_t _exitBoxTime;
         uint16_t _commercialPrepare;
 
@@ -67,4 +67,5 @@ class Line_Follower {
         uint8_t pos;
         Adafruit_DCMotor *_leftMotor, *_rightMotor;
         const Decision *_currentRoute;
+        uint8_t swanDist;
 };

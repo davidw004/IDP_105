@@ -10,13 +10,13 @@ Line_Follower::Line_Follower()
     _correctionFactor = 0.2;
     _blocksCollected = 0;
     _continueDelay = 500;
-    _turnDelay = 800;
+    _turnDelay = 600;
     _correctionTime = 20;
-    _turnTime = 200;
     _reverseTime = 2500;
     _exitBoxTime = 200;
     _timeFactor = 0.25; //modify this value according to line adjustment required.
     _commercialPrepare = 7500;
+    swanDist =10;
 
     _currentRoute = Routes::CollectBlockOne; //changed to test
     pos = 0;
@@ -139,20 +139,17 @@ void Line_Follower::go()
 
 void Line_Follower::adjust(int direction)
 {
-    //If left high (white) and right low (black) then change motor speed to turn left
-    //_turnStart = millis(); //get time at start and end of turn. 
     if (direction == LEFTTURN)
     {   
         Serial.print("in adjusting left block ");
-        motorDrive(_correctionFactor * baseSpeed, baseSpeed);       
+        motorDrive(_correctionFactor * baseSpeed, baseSpeed); //adjusting left so decrease left wheel speed
     }
 
     else if (direction == RIGHTTURN)
     {
         Serial.print("in adjusting right block ");
-        motorDrive(baseSpeed, _correctionFactor * baseSpeed);  
+        motorDrive(baseSpeed, _correctionFactor * baseSpeed); //adjusting right so decrease right wheel speed
     }
-
     /*  _turnStart = millis(); //get time at start and end of turn. 
         while (_leftReading == 1 && _rightReading == 0)
         { //run line correction until sensor is back on white. 
@@ -177,8 +174,6 @@ void Line_Follower::leftTurn()
         _leftReading = digitalRead(LINESENSOR2);   
     }
     delay(50);    
-    /*motorDrive(turnSpeed, 0); this code was used for wide line sensors
-    delay(_turnTime);*/
 }
 
 void Line_Follower::rightTurn()
@@ -191,9 +186,6 @@ void Line_Follower::rightTurn()
         _rightReading = digitalRead(LINESENSOR3);
     }
     delay(50);
-    //_leftMotor -> setSpeed(0.6 * baseSpeed);
-    /*motorDrive(0, turnSpeed); code for turning using wide sensors
-    delay(_turnTime);*/
 }
 
 void Line_Follower::straight(uint16_t duration)
@@ -215,7 +207,6 @@ void Line_Follower::turn180()
     stop();
 }
 
-
 void Line_Follower::turn90(bool left, bool OnJunction)
 {
     if (!OnJunction)
@@ -225,20 +216,20 @@ void Line_Follower::turn90(bool left, bool OnJunction)
             motorDrive(-turnSpeed, turnSpeed);
             while (_extremeLeftReading == 0)
             { // TURN 90 DEGREES.
-
+                readAllLFSensors();
             }
-            stop();
-            //code to run until left 
+            //Straightening adjustment
         }
         else
         {
             motorDrive(turnSpeed, -turnSpeed);
             while (_extremeRightReading == 0)
             { // TURN 90 DEGREES.
-
+                readAllLFSensors();
             }
-            stop();
+            //Straightening adjustment
         }
+        stop();
         return;
     }
     else
@@ -247,12 +238,12 @@ void Line_Follower::turn90(bool left, bool OnJunction)
     }
 }
 
-void Line_Follower::driveForwardBaseSpeed(int time_ms)
+void Line_Follower::driveForwardApproachSpeed(int time_ms)
 {
-    auto Start_Time = millis();
-    while (millis() < Start_Time + time_ms) // drive forward for a configured bit to get into factory
+    auto Start_Time = millis(); //This code may not run
+    while (millis() < Start_Time + time_ms) // drive forward for a configured bit to get into factory.
     {
-        motorDrive(baseSpeed, baseSpeed);
+        motorDrive(approachSpeed, approachSpeed);
     }
     stop();
 }
@@ -270,18 +261,17 @@ void Line_Follower::approachCube(uint32_t duration) //change duration to distanc
     }
     baseSpeed = 200;
     stop();
-
 }
 
 void Line_Follower::approachHome(uint32_t distance)
 {
     motorDrive(baseSpeed, baseSpeed);
-    delay(100); //Clearing the white line to prevent junction detection when go() called
-    for(uint32_t tStart = millis();  (millis()-tStart) < 1000;) //Replace this with while ultrasound less than distance passed to func
+    delay(200); //Clearing the white line to prevent junction detection when go() called
+    for(uint32_t tStart = millis();  (millis()-tStart) < 1500;)
     {
         go();
     }
-    while(_ultrasoundReading < 25 || _ultrasoundReading > 30) //Replace this with while ultrasound less than distance passed to func
+    while(_ultrasoundReading < 25 || _ultrasoundReading > 30) 
     {
         go();
         _ultrasoundReading = analogRead(ULTRASOUND); //May not be correct
@@ -402,40 +392,49 @@ void Line_Follower::junction()
         }
 
         case ENTERSWAN:
-        {
+        {   
             // drive forward until in front of factory
-            int SwanDist = 10;
-            while (TimeOfFlight.GetDistance() < SwanDist)
+            while (TimeOfFlight.GetDistance() < swanDist)
             {
-                motorDrive(baseSpeed, baseSpeed);
+                go();
             }
-            driveForwardBaseSpeed(200); // drive past start of factory for pre-defined ms to position
+
+            for(uint32_t tStart = millis();  (millis()-tStart) < 500;)
+            {
+                go();
+            }
+             // drive past start of factory for pre-defined ms to position
             stop();
 
             // We are positioned in front of the gate now
-            turn90(true, false);
-            driveForwardBaseSpeed(100); // drive to cube by going forward 100ms
-
-            // pickup block
-
-            _blockHard =  cubeRetrieval.pickUp();
+            turn90(false, false);
+            cubeRetrieval.prepare();
+            driveForwardApproachSpeed(3000); // drive to cube and push up against back section (against blocker?)            // pickup block
+            //Potential need to reverse small distance here
+            _blockHard = cubeRetrieval.pickUp();
+            delay(2000);
             ledsOff();
 
             _blocksCollected++;
             //Select route home based on current array and blockHard
-            if (_blockHard)
-            {   
-                _currentRoute = Routes::BringBlockSToRed;
-            }
-            else
-            {
-                _currentRoute = Routes::BringBlockSToGreen;
-            }
+            if (_blockHard) _currentRoute = Routes::BringBlockSToRed;
+            else _currentRoute = Routes::BringBlockSToGreen;
             pos = 0;
+
+            // reverse until hit white line:
+            while (_extremeLeftReading == 0 && _extremeRightReading == 0)
+            {
+                motorDrive(-baseSpeed, -baseSpeed);                
+            }
+            stop();
+
+            // turn to right on line for now:
+            if (_currentRoute == Routes::BringBlockSToRed) turn90(true, false);
+            else turn90(false, false);
             break;
         }
 
-        case EXITSWAN:
+        /*case EXITSWAN:
         {
             // reverse until hit white line:
             while (_extremeLeftReading == 0 && _extremeRightReading == 0)
@@ -448,7 +447,7 @@ void Line_Follower::junction()
             turn90(false, false);
 
             break;
-        }
+        }*/
 
         case ENTERLUCOZADE:
         {
@@ -456,14 +455,20 @@ void Line_Follower::junction()
             int LucozadeDist = 10;
             while (TimeOfFlight.GetDistance() > LucozadeDist)
             {
-                motorDrive(baseSpeed, baseSpeed);
+                go();
             }
-            driveForwardBaseSpeed(200); // drive past start of factory for pre-defined ms to position
+
+            for(uint32_t tStart = millis();  (millis()-tStart) < 500;)
+            {
+                go();
+            }
+
+             // drive past start of factory for pre-defined ms to position
             stop();
 
             // We are positioned in front of the gate now
-            turn90(true, false);
-            driveForwardBaseSpeed(100); // drive to cube by going forward 100ms
+            turn90(false, false);
+            driveForwardApproachSpeed(3000); // drive to cube by going forward 100ms
 
             // pickup block
 
@@ -472,19 +477,20 @@ void Line_Follower::junction()
 
             _blocksCollected++;
             //Select route home based on current array and blockHard
-            if (_blockHard)
-            {   
-                _currentRoute = Routes::BringBlockLToRed;
-            }
-            else
-            {
-                _currentRoute = Routes::BringBlockLToGreen;
-            }
+            if (_blockHard)_currentRoute = Routes::BringBlockLToRed;
+            else _currentRoute = Routes::BringBlockLToGreen;
+
             pos = 0;
+            // reverse until hit white line:
+            while (_extremeLeftReading == 0 && _extremeRightReading == 0)
+            {
+                motorDrive(-baseSpeed, -baseSpeed);
+            }
+            stop();
+            turn90(true, false);
             break;
         }
-        
-        case EXITLUCOZADE:
+        /*case EXITLUCOZADE:
         {
             // reverse until hit white line:
             while (_extremeLeftReading == 0 && _extremeRightReading == 0)
@@ -493,11 +499,11 @@ void Line_Follower::junction()
             }
             stop();
             turn90(true, false);
-        }
+        }*/
 
         default:
         {
-            straight(200);
+            straight(200); //to clear junction for line line following
             break;
         }
     }

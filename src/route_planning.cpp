@@ -19,18 +19,18 @@ namespace Routes {
 
 
     // Block Swan
-    Decision CollectBlockSFromRed[3] = {STRAIGHT, STRAIGHT, ENTERSWAN};
+    Decision CollectBlockSFromRed[6] = {STRAIGHT, LEFT, STRAIGHT, RIGHT, RIGHT, ENTERSWAN};
     Decision CollectBlockSFromGreen[5] = {STRAIGHT, RIGHT, LEFT, RIGHT, ENTERSWAN};
     // Return Swan
-    Decision BringBlockSToGreen[6] = {EXITSWAN, LEFT, RIGHT, LEFT, STRAIGHT, HOME};
-    Decision BringBlockSToRed[7] = {EXITSWAN, LEFT, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME};
+    Decision BringBlockSToGreen[5] = {LEFT, RIGHT, LEFT, STRAIGHT, HOME};
+    Decision BringBlockSToRed[3] = {STRAIGHT, STRAIGHT, HOME};
 
     // Block Lucozade
-    Decision CollectBlockLFromRed[5] = {STRAIGHT, LEFT, STRAIGHT, RIGHT, ENTERLUCOZADE};
-    Decision CollectBlockLFromGreen[4] = {STRAIGHT, RIGHT, LEFT, ENTERLUCOZADE};
+    Decision CollectBlockLFromRed[6] = {STRAIGHT, LEFT, STRAIGHT, STRAIGHT, RIGHT, ENTERLUCOZADE};
+    Decision CollectBlockLFromGreen[4] = {STRAIGHT, STRAIGHT, RIGHT, ENTERLUCOZADE};
     // Return Lucozade
-    Decision BringBlockLToGreen[5] = {EXITLUCOZADE, RIGHT, LEFT, STRAIGHT, HOME};
-    Decision BringBlockLToRed[6] = {EXITLUCOZADE, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME};
+    Decision BringBlockLToGreen[4] = {RIGHT, LEFT, STRAIGHT, HOME};
+    Decision BringBlockLToRed[5] = {LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME};
 
     //Back to home boxes
     Decision ReturnHomeFromRed[3] = {LEFT, LEFT, STARTBOX};
