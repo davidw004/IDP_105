@@ -362,9 +362,37 @@ void Line_Follower::junction()
             break;
         }
 
+        case EXITSWAN:
+        {
+            // reverse until hit white line:
+            while (_extremeLeftReading == 0 && _extremeRightReading == 0)
+            {
+                motorDrive(-baseSpeed, -baseSpeed);
+            }
+            motorDrive(0, 0);
+
+            // turn to right on line for now:
+
+            break;
+        }
+
         case ENTERLUCOZADE:
         {
             //approach and collect from lucozade zone
+            break;
+        }
+        
+        case EXITLUCOZADE:
+        {
+            // reverse until hit white line:
+            while (_extremeLeftReading == 0 && _extremeRightReading == 0)
+            {
+                motorDrive(-baseSpeed, -baseSpeed);
+            }
+            motorDrive(0, 0);
+            // turn to left on line:
+
+
             break;
         }
 
