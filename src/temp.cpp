@@ -14,7 +14,7 @@ Line_Follower::Line_Follower()
     _correctionTime = 20;
     _turnTime = 500;
     _reverseTime = 2500;
-    _exitBoxTime = 600;
+    _exitBoxTime = 400;
     _timeFactor = 0.25; //modify this value according to line adjustment required.
 
     _currentRoute = Routes::CollectBlockOne;
@@ -27,7 +27,6 @@ void Line_Follower::setup()
     pinMode(LINESENSOR2, INPUT);
     pinMode(LINESENSOR3, INPUT);
     pinMode(LINESENSOR4, INPUT);
-    pinMode(BUTTON1, INPUT);
 
     pinMode(REDLED, OUTPUT);
     pinMode(GREENLED, OUTPUT);
@@ -36,6 +35,10 @@ void Line_Follower::setup()
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
+    cubeRetrieval.raiseClaw();
+    _leftMotor->setSpeed(baseSpeed);
+    _rightMotor->setSpeed(baseSpeed);
+
 }
 
 void Line_Follower::readAllLFSensors()
@@ -74,7 +77,6 @@ void Line_Follower::sweep(){ //FINDS LINE. ONLY WORKS IF LINE IS BETWEEN INNER A
 //TUNE DELAY 
 void Line_Follower::exitbox()
 {
-    cubeRetrieval.raiseClaw();
     //Turn LED on
     digitalWrite(BLUELED, HIGH);
 
@@ -86,6 +88,7 @@ void Line_Follower::exitbox()
     }
     //Wait until exited box, ie central line sensors are past the white line
     delay(_exitBoxTime); //This puts the line sensors just over the white line. Fine tune duration
+    stop();
     /*if (digitalRead(LINESENSOR2) == 0 && digitalRead(LINESENSOR3) == 0){ //if not on line, find it. 
         Serial.print("sweeping now ");
         sweep();
@@ -94,8 +97,8 @@ void Line_Follower::exitbox()
 
 void Line_Follower::motorDrive(uint8_t lspeed, uint8_t rspeed)
 {
-    _leftMotor -> setSpeed(abs(lspeed));
-    _rightMotor -> setSpeed(abs(rspeed));
+    _leftMotor -> setSpeed(lspeed);
+    _rightMotor -> setSpeed(rspeed);
 
     if (lspeed < 0){_leftMotor -> run(FORWARD);}
     else if (lspeed > 0){_leftMotor -> run(BACKWARD);}
@@ -110,12 +113,11 @@ void Line_Follower::motorDrive(uint8_t lspeed, uint8_t rspeed)
 void Line_Follower::go()
 {
     readAllLFSensors();
-    
-    if (_extremeLeftReading == 1 || _extremeRightReading == 1)
-    {
+    //should this code be deleted
+    if (_extremeLeftReading == 1 || _extremeRightReading == 1){
         junction();
     }
-
+       
     //If both middle sensors black keep driving at maxspeed
     if (_leftReading == 1 && _rightReading == 1)
     {        
@@ -124,38 +126,34 @@ void Line_Follower::go()
     else if (_leftReading == 1 && _rightReading == 0){ //If left high (white) and right low (black) then change motor speed to turn left
         adjust(LEFT);
     }
+    
     else if (_leftReading == 0 && _rightReading == 1)
     { //If left high and right low then change motor speed to turn left
         adjust(RIGHT);
     }
-    else if (_leftReading == 0 && _rightReading == 0)
+    else
     {
-        while (_extremeLeftReading == 0 && _extremeRightReading == 0)
-        {
-            motorDrive(baseSpeed, baseSpeed);
-            readAllLFSensors();
-        }
-        motorDrive(0,0);
-        delay(2000);
-        junction();
+        sweep();
+        digitalWrite(BLUELED, LOW);
     }
 
+    //For error, keep track of which value was last white and recorrecr
 }
 
 void Line_Follower::adjust(int direction)
 {
     //If left high (white) and right low (black) then change motor speed to turn left
-    //_turnStart = millis(); //get time at start and end of turn. 
+    _turnStart = millis(); //get time at start and end of turn. 
     if (direction = LEFT)
     {
-        motorDrive(baseSpeed - (_correctionFactor * baseSpeed), baseSpeed);       
+        motorDrive(baseSpeed - _correctionFactor * baseSpeed, baseSpeed);       
     }
 
     else if (direction = RIGHT)
     {
-        motorDrive(baseSpeed, baseSpeed - (_correctionFactor * baseSpeed));  
+        motorDrive(baseSpeed, baseSpeed - _correctionFactor * baseSpeed);  
     }
-    //delay(_correctionTime);
+    delay(_correctionTime);
 
     /*  _turnStart = millis(); //get time at start and end of turn. 
         while (_leftReading == 1 && _rightReading == 0)
@@ -167,6 +165,7 @@ void Line_Follower::adjust(int direction)
         //while ((millis()-_turnEnd)<((_turnEnd-_turnStart)*_timeFactor)){ //reRun motors in opposite turn direction to correct. 
         //_leftMotor -> setSpeed(baseSpeed);
         //_rightMotor -> run(FORWARD);*/
+
 }
 
 void Line_Follower::leftTurn()
@@ -176,12 +175,16 @@ void Line_Follower::leftTurn()
     _extremeLeftReading = digitalRead(LINESENSOR1);
     while(_extremeLeftReading != 1)
     {
+        //_leftMotor->run(FORWARD);
+        //_rightMotor->run(BACKWARD);   
         _extremeLeftReading = digitalRead(LINESENSOR1);   
     }
     //_rightMotor -> setSpeed(0.6 * baseSpeed);
     
-    motorDrive(turnSpeed, 0);
+    _rightMotor -> run(RELEASE); //This bit needs tuning
+    _leftMotor -> run(BACKWARD);
     delay(_turnTime);
+
 }
 
 void Line_Follower::rightTurn()
@@ -194,14 +197,19 @@ void Line_Follower::rightTurn()
         _extremeRightReading = digitalRead(LINESENSOR4);
     }
     //_leftMotor -> setSpeed(0.6 * baseSpeed);
-    motorDrive(0, turnSpeed);
+
+    _leftMotor -> run(RELEASE); //needs tuning
+    _rightMotor -> run(BACKWARD);
     delay(_turnTime);
 }
 
 void Line_Follower::exitCorrection()
 {
-    motorDrive(baseSpeed, baseSpeed);
-    delay(200);
+    _rightMotor -> setSpeed(baseSpeed); //Maybe change speed here
+    _leftMotor -> setSpeed(baseSpeed);
+    _leftMotor->run(BACKWARD);  // Replace if needed
+    _rightMotor->run(BACKWARD);
+    delay(250);
 }
 
 void Line_Follower::straight()
@@ -296,13 +304,13 @@ void Line_Follower::junction()
             //Select route home based on current array and blockHard
             if (_blockHard)
             {   
-                if (_blocksCollected == 1){_currentRoute = Routes::BringBlockOneToRed;}
-                else if (_blocksCollected == 2) {_currentRoute = Routes::BringBlockTwoToRed;}
+                if (_blocksCollected == 1){_currentRoute = Routes::BringBockOneToRed;} // Brings 1st block to red
+                else if (_blocksCollected == 2) {_currentRoute = Routes::BringBlockTwoToRed;} // Brings 2nd block to red
             }
             else
             {
-                if (_blocksCollected == 1){_currentRoute = Routes::BringBlockOneToGreen;}
-                else if (_blocksCollected == 2) {_currentRoute = Routes::BringBlockTwoToGreen;}
+                if (_blocksCollected == 1){_currentRoute = Routes::BringBockOneToGreen;} // Brings 1st block to green
+                else if (_blocksCollected == 2) {_currentRoute = Routes::BringBlockTwoToGreen;} // Brings 2nd block to green
             }
             pos = 0;
             turn180();
@@ -326,8 +334,8 @@ void Line_Follower::junction()
                 }
                 /*case 2:
                 {
-                    if (_blockHard) _currentRoute = Routes::routeTwoRed;
-                    else _currentRoute = Routes::routeTwoGreen;
+                    if (_blockHard) _currentRoute = Routes::CollectBlockTwoFromRed;
+                    else _currentRoute = Routes::CollectBlockTwoFromGreen;
                     break;
                 }*/
                 default:
@@ -353,37 +361,9 @@ void Line_Follower::junction()
             break;
         }
 
-        case EXITSWAN:
-        {
-            // reverse until hit white line:
-            while (_extremeLeftReading == 0 && _extremeRightReading == 0)
-            {
-                motorDrive(-baseSpeed, -baseSpeed);
-            }
-            motorDrive(0, 0);
-
-            // turn to right on line for now:
-
-            break;
-        }
-
         case ENTERLUCOZADE:
         {
             //approach and collect from lucozade zone
-            break;
-        }
-        
-        case EXITLUCOZADE:
-        {
-            // reverse until hit white line:
-            while (_extremeLeftReading == 0 && _extremeRightReading == 0)
-            {
-                motorDrive(-baseSpeed, -baseSpeed);
-            }
-            motorDrive(0, 0);
-            // turn to left on line:
-
-
             break;
         }
 
