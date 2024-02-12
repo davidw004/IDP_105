@@ -15,16 +15,16 @@ namespace Routes {
     Decision BringBlockTwoToRed[4] = {RIGHT, RIGHT, STRAIGHT, HOME};
 
     // Block Swan
-    Decision CollectBlockSwanFromRed[3] = {STRAIGHT, STRAIGHT, ENTERSWAN};
-    Decision CollectBlockSwanFromGreen[5] = {STRAIGHT, RIGHT, LEFT, RIGHT, ENTERSWAN};
+    Decision CollectBlockSFromRed[3] = {STRAIGHT, STRAIGHT, ENTERSWAN};
+    Decision CollectBlockSFromGreen[5] = {STRAIGHT, RIGHT, LEFT, RIGHT, ENTERSWAN};
     // Return Swan
-    Decision BringBlockSwanToGreen[] = {EXITSWAN, LEFT, RIGHT, LEFT, STRAIGHT, HOME};
-    Decision BringBlockSwanToRed[] = {EXITSWAN, LEFT, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME};
+    Decision BringBlockSToGreen[] = {EXITSWAN, LEFT, RIGHT, LEFT, STRAIGHT, HOME};
+    Decision BringBlockSToRed[] = {EXITSWAN, LEFT, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME};
 
     // Block Lucozade
-    Decision CollectBlockLucozadeFromRed[5] = {STRAIGHT, LEFT, STRAIGHT, RIGHT, ENTERLUCOZADE};
-    Decision CollectBlockLucozadeFromGreen[4] = {STRAIGHT, RIGHT, LEFT, ENTERLUCOZADE};
+    Decision CollectBlockLFromRed[5] = {STRAIGHT, LEFT, STRAIGHT, RIGHT, ENTERLUCOZADE};
+    Decision CollectBlockLFromGreen[4] = {STRAIGHT, RIGHT, LEFT, ENTERLUCOZADE};
     // Return Lucozade
-    Decision ReturnBlockLucozadeToGreen[] = {EXITLUCOZADE, RIGHT, LEFT, STRAIGHT, HOME};
-    Decision ReturnBlockLucozadeToRed[] = {EXITLUCOZADE, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME}
+    Decision ReturnBlockLToGreen[] = {EXITLUCOZADE, RIGHT, LEFT, STRAIGHT, HOME};
+    Decision ReturnBlockLToRed[] = {EXITLUCOZADE, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME}
 };
