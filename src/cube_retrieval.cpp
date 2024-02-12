@@ -86,10 +86,32 @@ void Cube_Retrieval::dropOff() //Drops block into home
     _clawMotor -> run(RELEASE);
 }
 
-void Cube_Retrieval::prepare(uint16_t duration) //Pass in duration, smaller for commercial zone
+void Cube_Retrieval::prepare(uint16_t duration = 0) //Pass in duration, smaller for commercial zone
 {   
+    if (duration = 0)
+    {
+        _atEnd = false;
+        _clawMotor -> setSpeed(baseSpeed);
+        while (!_atEnd){
+            _clawMotor -> run(FORWARD);
+            if (!digitalRead(LIMITSWITCH2))
+            {
+                _atEnd = true;
+                _clawMotor -> run(RELEASE);
+            }
+        }
+    }
+    else 
+    {
+        _clawMotor -> setSpeed(baseSpeed);
+        _clawMotor -> run(FORWARD);
+        delay(duration);
+        _clawMotor-> run(RELEASE);  
+    }
+}
+/*
     _clawMotor -> setSpeed(baseSpeed);
     _clawMotor -> run(FORWARD);
     delay(duration);
-    _clawMotor-> run(RELEASE);   
-}
+    _clawMotor-> run(RELEASE);
+    */   
