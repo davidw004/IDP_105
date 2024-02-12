@@ -31,4 +31,8 @@ namespace Routes {
     // Return Lucozade
     Decision BringBlockLToGreen[5] = {EXITLUCOZADE, RIGHT, LEFT, STRAIGHT, HOME};
     Decision BringBlockLToRed[6] = {EXITLUCOZADE, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME};
+
+    //Back to home boxes
+    Decision ReturnHomeFromRed[3] = {LEFT, LEFT, STARTBOX};
+    Decision ReturnHomeFromGreen[3] = {RIGHT, RIGHT, STARTBOX};
 };

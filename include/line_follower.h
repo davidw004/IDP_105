@@ -22,13 +22,12 @@ class Line_Follower {
         void readAllLFSensors();
         void sweep();
         void exitbox();
-        void motorDrive(uint8_t lspeed, uint8_t rspeed);
+        void motorDrive(int lspeed, int rspeed);
         void go();
         void adjust(int direction);
         void leftTurn();
         void rightTurn();
-        void exitAdjustment();
-        void straight();
+        void straight(uint16_t duration);
         void turn180();
         void turn90(bool left, bool OnJunction);
         void driveForwardBaseSpeed(int time_ms);
@@ -45,7 +44,7 @@ class Line_Follower {
 
         //Motor speeds
         uint8_t maxSpeed;
-        uint8_t baseSpeed;
+        uint8_t baseSpeed, approachSpeed;
         uint8_t baseSweepSpeed;
         uint8_t turnSpeed;
         float _correctionFactor;

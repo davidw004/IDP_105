@@ -1,6 +1,6 @@
 #pragma once
 
-enum Decision{STRAIGHT, LEFT, RIGHT, BLOCK, HOME, ENTERSWAN, ENTERLUCOZADE, EXITSWAN, EXITLUCOZADE};
+enum Decision{STRAIGHT, LEFT, RIGHT, BLOCK, HOME, ENTERSWAN, ENTERLUCOZADE, EXITSWAN, EXITLUCOZADE, STARTBOX};
 
 namespace Routes {
 
@@ -31,6 +31,11 @@ namespace Routes {
     // Return Lucozade
     extern Decision BringBlockLToGreen[5];
     extern Decision BringBlockLToRed[6];
+
+    //Back to home boxes
+    extern Decision ReturnHomeFromRed[3];
+    extern Decision ReturnHomeFromGreen[3];
+
 };
 //malloc
 //free
