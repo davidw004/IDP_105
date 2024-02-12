@@ -48,10 +48,15 @@ bool Cube_Retrieval::pickUp() //code to pickup and detect block
 
 void Cube_Retrieval::ultrasoundTest()
 {
-    static int reading = analogRead(ULTRASOUND);
+    float reading = analogRead(ULTRASOUND)* MAX_RANG / ADC_SOLUTION;
     Serial.print(reading);
-    Serial.print("\n");
+    Serial.print(" ");
     delay(1000);
+}
+
+float Cube_Retrieval::readUltrasound()
+{
+    return analogRead(ULTRASOUND)* MAX_RANG / ADC_SOLUTION;
 }
 
 void Cube_Retrieval::raiseClaw() // Closes then raises claw
@@ -70,7 +75,7 @@ void Cube_Retrieval::raiseClaw() // Closes then raises claw
 
 bool Cube_Retrieval::detectCube() //Can be ran for both commercial and industrial
 {
-    if (analogRead(ULTRASOUND) < 200) return HARDBLOCK;
+    if (readUltrasound() < 5) return HARDBLOCK;
     else return SOFTBLOCK;
 }
 
@@ -81,7 +86,6 @@ void Cube_Retrieval::dropOff() //Drops block into home
     _clawMotor -> run(FORWARD);
     delay(2000);
     _clawMotor -> run(RELEASE);
-
 }
 
 void Cube_Retrieval::prepare(uint16_t duration) //Pass in duration, smaller for commercial zone

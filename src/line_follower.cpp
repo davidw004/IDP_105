@@ -248,7 +248,11 @@ void Line_Follower::approachHome(uint32_t distance)
 {
     motorDrive(baseSpeed, baseSpeed);
     delay(100); //Clearing the white line to prevent junction detection when go() called
-    while(_ultrasoundReading < distance) //Replace this with while ultrasound less than distance passed to func
+    for(uint32_t tStart = millis();  (millis()-tStart) < 1000;) //Replace this with while ultrasound less than distance passed to func
+    {
+        go();
+    }
+    while(_ultrasoundReading < 25 || _ultrasoundReading > 30) //Replace this with while ultrasound less than distance passed to func
     {
         go();
         _ultrasoundReading = analogRead(ULTRASOUND); //May not be correct
@@ -341,8 +345,7 @@ void Line_Follower::junction()
                 
             }
 
-            _leftMotor -> run(FORWARD);
-            _rightMotor -> run(FORWARD);
+            motorDrive(-baseSpeed, -baseSpeed);
             delay(_reverseTime);
             stop();
 
