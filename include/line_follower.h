@@ -6,6 +6,10 @@
 #include "cube_retrieval.h"
 #include "TOFSensor.h"
 
+// Defining directions
+#define RIGHT 1
+#define LEFT -1
+
 class Line_Follower {
 
     private:
@@ -15,9 +19,12 @@ class Line_Follower {
     public:
         Line_Follower();
         void setup();
+        void readAllLFSensors();
         void sweep();
         void exitbox();
+        void motorDrive(uint8_t lspeed, uint8_t rspeed);
         void go();
+        void adjust(int direction);
         void leftTurn();
         void rightTurn();
         void exitCorrection();
@@ -35,8 +42,8 @@ class Line_Follower {
         uint32_t _ultrasoundReading;
 
         //Motor speeds
-        uint8_t maxSpeedLeft, maxSpeedRight;
-        uint8_t baseSpeedLeft, baseSpeedRight;
+        uint8_t maxSpeed;
+        uint8_t baseSpeed;
         uint8_t baseSweepSpeed;
         uint8_t turnSpeed;
         

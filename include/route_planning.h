@@ -1,8 +1,9 @@
 #pragma once
 
-enum Decision{STRAIGHT, LEFT, RIGHT, BLOCK, HOME};
+enum Decision{STRAIGHT, LEFT, RIGHT, BLOCK, HOME, SWAN, LUCOZADE};
 
 namespace Routes {
+
     // Block 1
     extern Decision routeOne[3];
     //Return routes 1
@@ -16,8 +17,12 @@ namespace Routes {
     extern Decision returnTwoGreen[5];
     extern Decision returnTwoRed[4];
 
-    //Block 3
-    
+    // Block 2
+    extern Decision routeThreeRed[3];
+    extern Decision routeThreeGreen[5];
+    //Return routes 2
+    extern Decision returnFourGreen[5];
+    extern Decision returnFourRed[4];
 };
 //malloc
 //free

@@ -2,20 +2,21 @@
 
 Line_Follower::Line_Follower()
 {
-    maxSpeedLeft = 200;
-    maxSpeedRight = 200;
-    baseSpeedLeft = 175;
-    baseSpeedRight = 175;
+    maxSpeed = 200;
+    baseSpeed = 175;
+    baseSpeed = 175;
     turnSpeed = 125;
     baseSweepSpeed = 50;
+    _correctionFactor = 1.0;
     _blocksCollected = 0;
     _continueDelay = 500;
     _turnDelay = 800;
-    _correctionTime = 110;
-    _turnTime = 750;
+    _correctionTime = 50;
+    _turnTime = 500;
     _reverseTime = 2500;
     _exitBoxTime = 400;
     _timeFactor = 0.25; //modify this value according to line adjustment required.
+
     _currentRoute = Routes::routeOne;
     pos = 0;
 }
@@ -35,24 +36,28 @@ void Line_Follower::setup()
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
     cubeRetrieval.raiseClaw();
-    _leftMotor->setSpeed(baseSpeedLeft);
-    _rightMotor->setSpeed(baseSpeedRight);
+    _leftMotor->setSpeed(baseSpeed);
+    _rightMotor->setSpeed(baseSpeed);
 
+}
+
+void Line_Follower::readAllLFSensors()
+{
+    _extremeLeftReading = digitalRead(LINESENSOR1);
+    _leftReading = digitalRead(LINESENSOR2);
+    _rightReading = digitalRead(LINESENSOR3);
+    _extremeRightReading = digitalRead(LINESENSOR4); 
 }
 
 //TUNE TIME OF SWEEP AND MOTOR SPEEDS 
 void Line_Follower::sweep(){ //FINDS LINE. ONLY WORKS IF LINE IS BETWEEN INNER AND OUTER SENSORS, AND AWAY FROM A JUNCTION 
-    _leftMotor -> setSpeed(baseSweepSpeed);
-    _rightMotor -> setSpeed(baseSweepSpeed);
-    _leftMotor -> run(FORWARD);
-    _rightMotor -> run(BACKWARD); //sweeping left    
+    motorDrive(-baseSweepSpeed, baseSweepSpeed); //sweeps left 
     _startTime = millis();
     for(uint32_t _startTime = millis();  (millis() - _startTime) < 1000;) //Replace this with while ultrasound less than distance passed to func
     {
-        _extremeLeftReading = digitalRead(LINESENSOR1);
-        _extremeRightReading = digitalRead(LINESENSOR4); 
+        readAllLFSensors();
         if (_extremeRightReading == 1 ){ //line to the right of the robot 
-            while(digitalRead(LINESENSOR3)== 0){
+            while(digitalRead(LINESENSOR3) == 0){
                 _leftMotor -> run(BACKWARD);
                 _rightMotor -> setSpeed(0.3 * baseSweepSpeed);
             }
@@ -78,10 +83,8 @@ void Line_Follower::exitbox()
     //Run motors forwards
 
     while (_leftReading == 0 && _rightReading ==0){ //drive up to box edge
-        _leftMotor-> run(BACKWARD); //motors are connected in reverse
-        _rightMotor-> run(BACKWARD);
-        _leftReading = digitalRead(LINESENSOR2);
-        _rightReading = digitalRead(LINESENSOR3);
+        motorDrive(baseSpeed, baseSpeed);
+        readAllLFSensors();
     }
     //Wait until exited box, ie central line sensors are past the white line
     delay(_exitBoxTime); //This puts the line sensors just over the white line. Fine tune duration
@@ -92,13 +95,24 @@ void Line_Follower::exitbox()
     }*/
 }
 
+void Line_Follower::motorDrive(uint8_t lspeed, uint8_t rspeed)
+{
+    _leftMotor -> setSpeed(lspeed);
+    _rightMotor -> setSpeed(rspeed);
+
+    if (lspeed < 0){_leftMotor -> run(FORWARD);}
+    else if (lspeed > 0){_leftMotor -> run(BACKWARD);}
+    else if (lspeed = 0){_leftMotor -> run(RELEASE);}
+
+    if (rspeed < 0){_rightMotor -> run(FORWARD);}
+    else if (rspeed > 0){_rightMotor -> run(BACKWARD);}
+    else if (rspeed = 0){_rightMotor -> run(RELEASE);}
+}
+
 //TUNE _timeFactor VARIABLE. LINE SENSOR INITIALISATION MOVED TO setup().
 void Line_Follower::go()
 {
-    _extremeLeftReading = digitalRead(LINESENSOR1);
-    _leftReading = digitalRead(LINESENSOR2);
-    _rightReading = digitalRead(LINESENSOR3);
-    _extremeRightReading = digitalRead(LINESENSOR4); 
+    readAllLFSensors();
     //should this code be deleted
     if (_extremeLeftReading == 1 || _extremeRightReading == 1){
         junction();
@@ -107,54 +121,15 @@ void Line_Follower::go()
     //If both middle sensors black keep driving at maxspeed
     if (_leftReading == 1 && _rightReading == 1)
     {        
-        _leftMotor -> setSpeed(baseSpeedLeft);
-        _rightMotor -> setSpeed(baseSpeedRight);
-        //Run motors forwards
-        _leftMotor->run(BACKWARD); //motors are connected in reverse
-        _rightMotor->run(BACKWARD); //motors are connected in reverse
+        motorDrive(baseSpeed, baseSpeed);
     }
     else if (_leftReading == 1 && _rightReading == 0){ //If left high (white) and right low (black) then change motor speed to turn left
-        _turnStart = millis(); //get time at start and end of turn. 
-        //_leftMotor -> setSpeed( 0.5 * baseSpeedLeft);
-        _rightMotor -> setSpeed(0.8 * baseSpeedRight);
-        //Run motors forwards
-        _leftMotor->run(RELEASE); //motors are connected in reverse
-        _rightMotor->run(BACKWARD); //motors are connected in reverse
-        
-        /*while (_leftReading == 1 && _rightReading == 0)
-        { //run line correction until sensor is back on white. 
-            _leftReading = digitalRead(LINESENSOR2);
-            _rightReading = digitalRead(LINESENSOR3);
-        }
-        //_turnEnd = millis();
-        //while ((millis()-_turnEnd)<((_turnEnd-_turnStart)*_timeFactor)){ //reRun motors in opposite turn direction to correct. 
-        _leftMotor -> setSpeed(baseSpeedLeft);
-        _rightMotor -> run(FORWARD);
-        delay(_correctionTime);
-        stop();*/
+        adjust(LEFT);
     }
     
     else if (_leftReading == 0 && _rightReading == 1)
     { //If left high and right low then change motor speed to turn left
-        _turnStart = millis();
-        _leftMotor -> setSpeed(0.8 * baseSpeedLeft);
-        //_rightMotor -> setSpeed(0.5 * baseSpeedRight);
-        //Run motors forwards
-        _leftMotor->run(BACKWARD); //motors are connected in reverse
-        _rightMotor->run(RELEASE); //motors are connected in reverse
-
-        /*while (_leftReading == 0 && _rightReading == 1)
-        {                
-            _leftReading = digitalRead(LINESENSOR2);
-            _rightReading = digitalRead(LINESENSOR3);
-        }
-        //_turnEnd = millis();
-        
-        _rightMotor -> setSpeed(baseSpeedRight);
-        _leftMotor -> run(FORWARD) ;
-        delay(_correctionTime);
-        stop();
-        */
+        adjust(RIGHT);
     }
     else
     {
@@ -163,6 +138,33 @@ void Line_Follower::go()
     }
 
     //For error, keep track of which value was last white and recorrecr
+}
+
+void Line_Follower::adjust(int direction)
+{
+    //If left high (white) and right low (black) then change motor speed to turn left
+    _turnStart = millis(); //get time at start and end of turn. 
+    if (direction = LEFT)
+    {
+        motorDrive(baseSpeed - _correctionFactor * baseSpeed, baseSpeed);       
+    }
+
+    else if (direction = RIGHT)
+    {
+        motorDrive(baseSpeed, baseSpeed - _correctionFactor * baseSpeed);  
+    }
+    delay(_correctionTime);
+    /*  _turnStart = millis(); //get time at start and end of turn. 
+        while (_leftReading == 1 && _rightReading == 0)
+        { //run line correction until sensor is back on white. 
+            _leftReading = digitalRead(LINESENSOR2);
+            _rightReading = digitalRead(LINESENSOR3);
+        }
+        //_turnEnd = millis();
+        //while ((millis()-_turnEnd)<((_turnEnd-_turnStart)*_timeFactor)){ //reRun motors in opposite turn direction to correct. 
+        //_leftMotor -> setSpeed(baseSpeed);
+        //_rightMotor -> run(FORWARD);*/
+
 }
 
 void Line_Follower::leftTurn()
@@ -179,7 +181,7 @@ void Line_Follower::leftTurn()
         _rightMotor->run(BACKWARD);   
         _extremeLeftReading = digitalRead(LINESENSOR1);   
     }
-    //_rightMotor -> setSpeed(0.6 * baseSpeedRight);
+    //_rightMotor -> setSpeed(0.6 * baseSpeed);
     _rightMotor -> run(RELEASE);
     _leftMotor -> run(BACKWARD);
     delay(_turnTime);
@@ -200,7 +202,7 @@ void Line_Follower::rightTurn()
         _rightMotor->run(FORWARD); 
         _extremeRightReading = digitalRead(LINESENSOR4);
     }
-    //_leftMotor -> setSpeed(0.6 * baseSpeedLeft);
+    //_leftMotor -> setSpeed(0.6 * baseSpeed);
     _leftMotor -> run(RELEASE);
     _rightMotor -> run(BACKWARD);
     delay(_turnTime);
@@ -208,8 +210,8 @@ void Line_Follower::rightTurn()
 
 void Line_Follower::exitCorrection()
 {
-    _rightMotor -> setSpeed(baseSpeedRight);
-    _leftMotor -> setSpeed(baseSpeedLeft);
+    _rightMotor -> setSpeed(baseSpeed);
+    _leftMotor -> setSpeed(baseSpeed);
     _leftMotor->run(BACKWARD);  // Replace if needed
     _rightMotor->run(BACKWARD);
     delay(250);
@@ -217,8 +219,8 @@ void Line_Follower::exitCorrection()
 
 void Line_Follower::straight()
 {
-    _leftMotor -> setSpeed(baseSpeedLeft);
-    _rightMotor -> setSpeed(baseSpeedRight);
+    _leftMotor -> setSpeed(baseSpeed);
+    _rightMotor -> setSpeed(baseSpeed);
     _leftMotor->run(BACKWARD);  // Replace if needed
     _rightMotor->run(BACKWARD);
     delay(_continueDelay);
