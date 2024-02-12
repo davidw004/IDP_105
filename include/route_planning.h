@@ -1,28 +1,36 @@
 #pragma once
 
-enum Decision{STRAIGHT, LEFT, RIGHT, BLOCK, HOME, SWAN, LUCOZADE};
+enum Decision{STRAIGHT, LEFT, RIGHT, BLOCK, HOME, ENTERSWAN, ENTERLUCOZADE, EXITSWAN, EXITLUCOZADE};
 
 namespace Routes {
 
     // Block 1
-    extern Decision routeOne[3];
+    extern Decision CollectBlockOne[3];
+
     //Return routes 1
-    extern Decision returnOneGreen[3];
-    extern Decision returnOneRed[4];
+    extern Decision BringBlockOneToGreen[3];
+    extern Decision BringBlockOneToRed[4];
 
     // Block 2
-    extern Decision routeTwoRed[4];
-    extern Decision routeTwoGreen[5];
+    extern Decision CollectBlockTwoFromRed[4];
+    extern Decision CollectBlockTwoFromGreen[5];
+    
     //Return routes 2
-    extern Decision returnTwoGreen[5];
-    extern Decision returnTwoRed[4];
+    extern Decision BringBlockTwoToGreen[5];
+    extern Decision BringBlockTwoToRed[4];
 
     // Block 2
-    extern Decision routeThreeRed[3];
-    extern Decision routeThreeGreen[5];
+    extern Decision CollectBlockSFromRed[3];
+    extern Decision CollectBlockSFromGreen[5];
     //Return routes 2
-    extern Decision returnFourGreen[5];
-    extern Decision returnFourRed[4];
+    extern Decision BringBlockSToGreen[6];
+    extern Decision BringBlockSToRed[7];
+
+    extern Decision CollectBlockLFromRed[5];
+    extern Decision CollectBlockLFromGreen[4];
+    // Return Lucozade
+    extern Decision ReturnBlockLToGreen[5];
+    extern Decision ReturnBlockLToRed[6];
 };
 //malloc
 //free
