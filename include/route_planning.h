@@ -7,12 +7,13 @@ namespace Routes {
     // Block 1
     extern Decision CollectBlockOne[3];
     //Return routes 1
-    extern Decision BringBockOneToGreen[3];
-    extern Decision BringBockOneToRed[4];
+    extern Decision BringBlockOneToGreen[3];
+    extern Decision BringBlockOneToRed[4];
 
     // Block 2
     extern Decision CollectBlockTwoFromRed[4];
     extern Decision CollectBlockTwoFromGreen[5];
+    
     //Return routes 2
     extern Decision BringBlockTwoToGreen[5];
     extern Decision BringBlockTwoToRed[4];

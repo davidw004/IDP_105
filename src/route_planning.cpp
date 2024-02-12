@@ -4,8 +4,8 @@ namespace Routes {
     // Block 1 collection
     Decision CollectBlockOne[3] = {LEFT, RIGHT, BLOCK};
     //Return routes 1
-    Decision BringBockOneToGreen[3] = {RIGHT, LEFT, HOME};
-    Decision BringBockOneToRed[4] = {LEFT, STRAIGHT, RIGHT, HOME};
+    Decision BringBlockOneToGreen[3] = {RIGHT, LEFT, HOME};
+    Decision BringBlockOneToRed[4] = {LEFT, STRAIGHT, RIGHT, HOME};
 
     // Block 2
     Decision CollectBlockTwoFromRed[4] = {STRAIGHT, LEFT, LEFT, BLOCK};
@@ -26,5 +26,5 @@ namespace Routes {
     Decision CollectBlockLucozadeFromGreen[4] = {STRAIGHT, RIGHT, LEFT, ENTERLUCOZADE};
     // Return Lucozade
     Decision ReturnBlockLucozadeToGreen[] = {EXITLUCOZADE, RIGHT, LEFT, STRAIGHT, HOME};
-    Decision ReturnBlockLucozadeToRed[] = {EXITLUCOZADE, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME}
+    Decision ReturnBlockLucozadeToRed[] = {EXITLUCOZADE, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME};
 };
