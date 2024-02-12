@@ -11,7 +11,7 @@ Line_Follower::Line_Follower()
     _blocksCollected = 0;
     _continueDelay = 500;
     _turnDelay = 800;
-    _correctionTime = 50;
+    _correctionTime = 20;
     _turnTime = 500;
     _reverseTime = 2500;
     _exitBoxTime = 400;
@@ -154,6 +154,7 @@ void Line_Follower::adjust(int direction)
         motorDrive(baseSpeed, baseSpeed - _correctionFactor * baseSpeed);  
     }
     delay(_correctionTime);
+
     /*  _turnStart = millis(); //get time at start and end of turn. 
         while (_leftReading == 1 && _rightReading == 0)
         { //run line correction until sensor is back on white. 
@@ -169,20 +170,18 @@ void Line_Follower::adjust(int direction)
 
 void Line_Follower::leftTurn()
 {   
-    _rightMotor -> setSpeed(turnSpeed);
-    _leftMotor -> setSpeed(turnSpeed);
-    _leftMotor->run(FORWARD);
-    _rightMotor->run(BACKWARD);
+    motorDrive(-turnSpeed, turnSpeed);
     delay(_turnDelay);
     _extremeLeftReading = digitalRead(LINESENSOR1);
     while(_extremeLeftReading != 1)
     {
-        _leftMotor->run(FORWARD);
-        _rightMotor->run(BACKWARD);   
+        //_leftMotor->run(FORWARD);
+        //_rightMotor->run(BACKWARD);   
         _extremeLeftReading = digitalRead(LINESENSOR1);   
     }
     //_rightMotor -> setSpeed(0.6 * baseSpeed);
-    _rightMotor -> run(RELEASE);
+    
+    _rightMotor -> run(RELEASE); //This bit needs tuning
     _leftMotor -> run(BACKWARD);
     delay(_turnTime);
 
@@ -190,27 +189,23 @@ void Line_Follower::leftTurn()
 
 void Line_Follower::rightTurn()
 {
-    _leftMotor -> setSpeed(turnSpeed);
-    _rightMotor -> setSpeed(turnSpeed);
-    _leftMotor->run(BACKWARD);
-    _rightMotor->run(FORWARD);   
+    motorDrive(turnSpeed, -turnSpeed); 
     delay(_turnDelay);
     _extremeRightReading = digitalRead(LINESENSOR4);
     while(_extremeRightReading != 1)
     {
-        _leftMotor->run(BACKWARD);
-        _rightMotor->run(FORWARD); 
         _extremeRightReading = digitalRead(LINESENSOR4);
     }
     //_leftMotor -> setSpeed(0.6 * baseSpeed);
-    _leftMotor -> run(RELEASE);
+
+    _leftMotor -> run(RELEASE); //needs tuning
     _rightMotor -> run(BACKWARD);
     delay(_turnTime);
 }
 
 void Line_Follower::exitCorrection()
 {
-    _rightMotor -> setSpeed(baseSpeed);
+    _rightMotor -> setSpeed(baseSpeed); //Maybe change speed here
     _leftMotor -> setSpeed(baseSpeed);
     _leftMotor->run(BACKWARD);  // Replace if needed
     _rightMotor->run(BACKWARD);
@@ -219,19 +214,13 @@ void Line_Follower::exitCorrection()
 
 void Line_Follower::straight()
 {
-    _leftMotor -> setSpeed(baseSpeed);
-    _rightMotor -> setSpeed(baseSpeed);
-    _leftMotor->run(BACKWARD);  // Replace if needed
-    _rightMotor->run(BACKWARD);
+    motorDrive(baseSpeed, baseSpeed);
     delay(_continueDelay);
 }
 
 void Line_Follower::turn180()
-{   
-    _leftMotor -> setSpeed(turnSpeed);
-    _rightMotor -> setSpeed(turnSpeed);
-    _leftMotor -> run(FORWARD);
-    _rightMotor -> run(BACKWARD);
+{      
+    motorDrive(-turnSpeed, turnSpeed);
     _turnStart = millis();
     while (_extremeLeftReading == 0)
     { //TIME TURN TO 90 DEGREES.
@@ -245,8 +234,7 @@ void Line_Follower::turn180()
 void Line_Follower::approachCube(uint32_t duration) //change duration to distance using ultrasound
 {
     //Currently just hard coding the distance from final turn to the block. Will likely need editing
-    _leftMotor -> run(BACKWARD);
-    _rightMotor -> run(BACKWARD);
+    motorDrive(baseSpeed, baseSpeed);
     delay(100); //Clearing the white line to prevent junction detection when go() called
     for(uint32_t tStart = millis();  (millis()-tStart) < duration;) //Replace this with while ultrasound less than distance passed to func
     {
@@ -258,8 +246,7 @@ void Line_Follower::approachCube(uint32_t duration) //change duration to distanc
 
 void Line_Follower::approachHome(uint32_t distance)
 {
-    _leftMotor -> run(BACKWARD);
-    _rightMotor -> run(BACKWARD);
+    motorDrive(baseSpeed, baseSpeed);
     delay(100); //Clearing the white line to prevent junction detection when go() called
     while(_ultrasoundReading < distance) //Replace this with while ultrasound less than distance passed to func
     {
@@ -300,7 +287,7 @@ void Line_Follower::junction()
         case BLOCK:
         {
             stop();
-            cubeRetrieval.prepare(7500); //7500 for commercial zone pickup
+            cubeRetrieval.prepare(7500); //7500 for commercial zone pickup, change to limit switch
 
             if (_blocksCollected == 0) approachCube(200);
             else if (_blocksCollected == 1) approachCube(100); //Instead change duration 100 to a distance (while )
@@ -362,6 +349,18 @@ void Line_Follower::junction()
             cubeRetrieval.raiseClaw();
             turn180();
             pos = 0;
+            break;
+        }
+
+        case SWAN:
+        {
+            //approach and collect from swan zone
+            break;
+        }
+
+        case LUCOZADE:
+        {
+            //approach and collect from lucozade zone
             break;
         }
 

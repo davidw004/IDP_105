@@ -46,6 +46,7 @@ class Line_Follower {
         uint8_t baseSpeed;
         uint8_t baseSweepSpeed;
         uint8_t turnSpeed;
+        float _correctionFactor;
         
         //Timings for functions
         uint16_t _correctionTime;

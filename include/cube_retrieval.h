@@ -15,6 +15,7 @@ class Cube_Retrieval
     bool detectCube();
     void dropOff();
     void test();
+    void ultrasoundTest();
     void raiseClaw();
     void prepare(uint16_t duration);
 
