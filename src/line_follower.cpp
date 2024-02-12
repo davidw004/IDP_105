@@ -229,6 +229,47 @@ void Line_Follower::turn180()
     stop();
 }
 
+
+void Line_Follower::turn90(bool left, bool OnJunction)
+{
+    if (!OnJunction)
+    {
+        if (left)
+        {
+            motorDrive(-turnSpeed, turnSpeed);
+            while (_extremeLeftReading == 0)
+            { // TURN 90 DEGREES.
+
+            }
+            stop();
+        }
+        else
+        {
+            motorDrive(turnSpeed, -turnSpeed);
+            while (_extremeRightReading == 0)
+            { // TURN 90 DEGREES.
+
+            }
+            stop();
+        }
+        return;
+    }
+    else
+    {
+        return;
+    }
+}
+
+void Line_Follower::driveForwardBaseSpeed(int time_ms)
+{
+    auto Start_Time = millis();
+    while (millis() < Start_Time + time_ms) // drive forward for a configured bit to get into factory
+    {
+        motorDrive(baseSpeed, baseSpeed);
+    }
+    stop();
+}
+
 void Line_Follower::approachCube(uint32_t duration) //change duration to distance using ultrasound
 {   
     Serial.print("in approach cube func ");
@@ -362,7 +403,35 @@ void Line_Follower::junction()
 
         case ENTERSWAN:
         {
-            //approach and collect from swan zone
+            // drive forward until in front of factory
+            int SwanDist = 10;
+            while (TimeOfFlight.GetDistance() < SwanDist)
+            {
+                motorDrive(baseSpeed, baseSpeed);
+            }
+            driveForwardBaseSpeed(200); // drive past start of factory for pre-defined ms to position
+            stop();
+
+            // We are positioned in front of the gate now
+            turn90(true, false);
+            driveForwardBaseSpeed(100); // drive to cube by going forward 100ms
+
+            // pickup block
+
+            _blockHard =  cubeRetrieval.pickUp();
+            ledsOff();
+
+            _blocksCollected++;
+            //Select route home based on current array and blockHard
+            if (_blockHard)
+            {   
+                _currentRoute = Routes::BringBlockSToRed;
+            }
+            else
+            {
+                _currentRoute = Routes::BringBlockSToGreen;
+            }
+            pos = 0;
             break;
         }
 
@@ -379,13 +448,42 @@ void Line_Follower::junction()
             motorDrive(0, 0);
 
             // turn to right on line for now:
+            turn90(false, false);
 
             break;
         }
 
         case ENTERLUCOZADE:
         {
-            //approach and collect from lucozade zone
+            // drive forward until in front of factory
+            int LucozadeDist = 10;
+            while (TimeOfFlight.GetDistance() > LucozadeDist)
+            {
+                motorDrive(baseSpeed, baseSpeed);
+            }
+            driveForwardBaseSpeed(200); // drive past start of factory for pre-defined ms to position
+            stop();
+
+            // We are positioned in front of the gate now
+            turn90(true, false);
+            driveForwardBaseSpeed(100); // drive to cube by going forward 100ms
+
+            // pickup block
+
+            _blockHard =  cubeRetrieval.pickUp();
+            ledsOff();
+
+            _blocksCollected++;
+            //Select route home based on current array and blockHard
+            if (_blockHard)
+            {   
+                _currentRoute = Routes::BringBlockLToRed;
+            }
+            else
+            {
+                _currentRoute = Routes::BringBlockLToGreen;
+            }
+            pos = 0;
             break;
         }
         
@@ -398,11 +496,8 @@ void Line_Follower::junction()
                 _leftMotor -> run(FORWARD);
                 _rightMotor -> run(FORWARD);
             }
-            motorDrive(0, 0);
-            // turn to left on line:
-
-
-            break;
+            stop();
+            turn90(true, false);
         }
 
         default:

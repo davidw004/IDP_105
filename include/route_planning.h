@@ -29,8 +29,8 @@ namespace Routes {
     extern Decision CollectBlockLFromRed[5];
     extern Decision CollectBlockLFromGreen[4];
     // Return Lucozade
-    extern Decision ReturnBlockLToGreen[5];
-    extern Decision ReturnBlockLToRed[6];
+    extern Decision BringBlockLToGreen[5];
+    extern Decision BringBlockLToRed[6];
 };
 //malloc
 //free
