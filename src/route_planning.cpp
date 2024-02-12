@@ -26,5 +26,5 @@ namespace Routes {
     Decision CollectBlockLFromGreen[4] = {STRAIGHT, RIGHT, LEFT, ENTERLUCOZADE};
     // Return Lucozade
     Decision ReturnBlockLToGreen[] = {EXITLUCOZADE, RIGHT, LEFT, STRAIGHT, HOME};
-    Decision ReturnBlockLToRed[] = {EXITLUCOZADE, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME}
+    Decision ReturnBlockLToRed[] = {EXITLUCOZADE, LEFT, STRAIGHT, RIGHT, STRAIGHT, HOME};
 };
