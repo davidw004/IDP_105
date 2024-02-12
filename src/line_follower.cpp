@@ -390,7 +390,35 @@ void Line_Follower::junction()
 
         case ENTERSWAN:
         {
-            //approach and collect from swan zone
+            // drive forward until in front of factory
+            int SwanDist = 10;
+            while (TimeOfFlight.GetDistance() < SwanDist)
+            {
+                motorDrive(baseSpeed, baseSpeed);
+            }
+            driveForwardBaseSpeed(200); // drive past start of factory for pre-defined ms to position
+            stop();
+
+            // We are positioned in front of the gate now
+            turn90(true, false);
+            driveForwardBaseSpeed(100); // drive to cube by going forward 100ms
+
+            // pickup block
+
+            _blockHard =  cubeRetrieval.pickUp();
+            ledsOff();
+
+            _blocksCollected++;
+            //Select route home based on current array and blockHard
+            if (_blockHard)
+            {   
+                _currentRoute = Routes::BringBlockSToRed;
+            }
+            else
+            {
+                _currentRoute = Routes::BringBlockSToGreen;
+            }
+            pos = 0;
             break;
         }
 
@@ -404,6 +432,7 @@ void Line_Follower::junction()
             motorDrive(0, 0);
 
             // turn to right on line for now:
+            turn90(false, false);
 
             break;
         }
@@ -421,7 +450,24 @@ void Line_Follower::junction()
 
             // We are positioned in front of the gate now
             turn90(true, false);
-            driveForwardBaseSpeed(100);
+            driveForwardBaseSpeed(100); // drive to cube by going forward 100ms
+
+            // pickup block
+
+            _blockHard =  cubeRetrieval.pickUp();
+            ledsOff();
+
+            _blocksCollected++;
+            //Select route home based on current array and blockHard
+            if (_blockHard)
+            {   
+                _currentRoute = Routes::BringBlockLToRed;
+            }
+            else
+            {
+                _currentRoute = Routes::BringBlockLToGreen;
+            }
+            pos = 0;
             break;
         }
         
