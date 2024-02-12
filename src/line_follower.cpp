@@ -27,6 +27,7 @@ void Line_Follower::setup()
     pinMode(LINESENSOR2, INPUT);
     pinMode(LINESENSOR3, INPUT);
     pinMode(LINESENSOR4, INPUT);
+    pinMode(BUTTON1, INPUT);
 
     pinMode(REDLED, OUTPUT);
     pinMode(GREENLED, OUTPUT);
@@ -35,10 +36,6 @@ void Line_Follower::setup()
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
-    cubeRetrieval.raiseClaw();
-    _leftMotor->setSpeed(baseSpeed);
-    _rightMotor->setSpeed(baseSpeed);
-
 }
 
 void Line_Follower::readAllLFSensors()
@@ -77,6 +74,7 @@ void Line_Follower::sweep(){ //FINDS LINE. ONLY WORKS IF LINE IS BETWEEN INNER A
 //TUNE DELAY 
 void Line_Follower::exitbox()
 {
+    cubeRetrieval.raiseClaw();
     //Turn LED on
     digitalWrite(BLUELED, HIGH);
 
@@ -139,6 +137,7 @@ void Line_Follower::go()
             readAllLFSensors();
         }
         motorDrive(0, 0);
+        delay(2000);
         junction();
     }
 
@@ -210,11 +209,8 @@ void Line_Follower::rightTurn()
 
 void Line_Follower::exitCorrection()
 {
-    _rightMotor -> setSpeed(baseSpeed); //Maybe change speed here
-    _leftMotor -> setSpeed(baseSpeed);
-    _leftMotor->run(BACKWARD);  // Replace if needed
-    _rightMotor->run(BACKWARD);
-    delay(250);
+    motorDrive(baseSpeed, baseSpeed);
+    delay(200);
 }
 
 void Line_Follower::straight()
