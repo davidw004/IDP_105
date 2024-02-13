@@ -7,12 +7,12 @@ Line_Follower robot;
 void setup() {
   Serial.begin(9600);
   robot.setup();
+  //cube.setup();
   while (digitalRead(BUTTON1) != 1)
   {
     delay(50);
   }
   robot.exitbox();
-  //cube.setup();
 }
 void loop()
 {

@@ -82,7 +82,7 @@ void Cube_Retrieval::dropOff() //Drops block into home
 {   
     _clawMotor -> setSpeed(baseSpeed);
     _clawMotor -> run(FORWARD);
-    delay(2000);
+    delay(4000);
     _clawMotor -> run(RELEASE);
 }
 
