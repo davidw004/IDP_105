@@ -16,7 +16,7 @@ void TOFSensor::Setup()
     sensor.start();
 }
 
-int TOFSensor::GetDistance()
-{
+float TOFSensor::GetDistance()
+{   
     return sensor.getDistance() / 10; // Sensor works in mm while Ultrasound works in cm
 }

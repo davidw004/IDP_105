@@ -24,15 +24,19 @@ class Line_Follower {
         void exitbox();
         void motorDrive(int lspeed, int rspeed);
         void go();
+        void timedGo(int duration, int speed);
         void adjust(int direction);
         void leftTurn();
         void rightTurn();
         void straight(uint16_t duration);
+        void reverse(int duration, int speed);
         void turn180(int direciton);
         void turnFactory(int direction, bool OnJunction);
         void driveForwardApproachSpeed(unsigned long time_ms);
         void approachCube(uint32_t duration);
         void approachHome(float duration);
+        void enterIndustrial();
+        void reverseToLine();
         void stop();
         void ledsOff();
         void junction();
@@ -68,5 +72,5 @@ class Line_Follower {
         uint8_t pos;
         Adafruit_DCMotor *_leftMotor, *_rightMotor;
         const Decision *_currentRoute;
-        uint8_t swanDist, lucozadeDist;
+        float swanDist, lucozadeDist;
 };

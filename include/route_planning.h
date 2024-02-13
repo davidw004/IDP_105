@@ -21,12 +21,12 @@ namespace Routes {
 
     // Block 2
     extern Decision CollectBlockSFromRed[6];
-    extern Decision CollectBlockSFromGreen[5];
+    extern Decision CollectBlockSFromGreen[4];
     //Return routes 2
-    extern Decision BringBlockSToGreen[5];
+    extern Decision BringBlockSToGreen[4];
     extern Decision BringBlockSToRed[3];
 
-    extern Decision CollectBlockLFromRed[6];
+    extern Decision CollectBlockLFromRed[4];
     extern Decision CollectBlockLFromGreen[4];
     // Return Lucozade
     extern Decision BringBlockLToGreen[4];

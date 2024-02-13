@@ -7,7 +7,7 @@ class TOFSensor
     public:
     TOFSensor();
     void Setup();
-    int GetDistance();
+    float GetDistance();
     
     private:
     int pin;

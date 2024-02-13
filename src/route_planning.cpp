@@ -20,13 +20,13 @@ namespace Routes {
 
     // Block Swan
     Decision CollectBlockSFromRed[6] = {STRAIGHT, LEFT, STRAIGHT, RIGHT, RIGHT, ENTERSWAN};
-    Decision CollectBlockSFromGreen[5] = {STRAIGHT, RIGHT, LEFT, RIGHT, ENTERSWAN};
+    Decision CollectBlockSFromGreen[4] = {STRAIGHT, STRAIGHT, STRAIGHT, ENTERSWAN};
     // Return Swan
-    Decision BringBlockSToGreen[5] = {LEFT, RIGHT, LEFT, STRAIGHT, HOME};
+    Decision BringBlockSToGreen[4] = {STRAIGHT, STRAIGHT, STRAIGHT, HOME};
     Decision BringBlockSToRed[3] = {STRAIGHT, STRAIGHT, HOME};
 
     // Block Lucozade
-    Decision CollectBlockLFromRed[6] = {STRAIGHT, LEFT, STRAIGHT, STRAIGHT, RIGHT, ENTERLUCOZADE};
+    Decision CollectBlockLFromRed[4] = {STRAIGHT, STRAIGHT, LEFT, ENTERLUCOZADE};
     Decision CollectBlockLFromGreen[4] = {STRAIGHT, STRAIGHT, RIGHT, ENTERLUCOZADE};
     // Return Lucozade
     Decision BringBlockLToGreen[4] = {RIGHT, LEFT, STRAIGHT, HOME};

@@ -4,8 +4,8 @@
 #include <Ticker.h>
 
 Line_Follower robot;
-Cube_Retrieval cube;
-TOFSensor timeOF;
+//Cube_Retrieval cube;
+//TOFSensor timeOF;
 
 extern bool blue_led_on;
 extern bool wheel_running;
@@ -45,5 +45,6 @@ void setup() {
 }
 void loop()
 {
+  tickerObject.update();
   robot.go();
 }
