@@ -28,11 +28,11 @@ class Line_Follower {
         void leftTurn();
         void rightTurn();
         void straight(uint16_t duration);
-        void turn180();
+        void turn180(int direciton);
         void turn90(bool left, bool OnJunction);
-        void driveForwardApproachSpeed(int time_ms);
+        void driveForwardApproachSpeed(unsigned long time_ms);
         void approachCube(uint32_t duration);
-        void approachHome(uint32_t distance);
+        void approachHome(float duration);
         void stop();
         void ledsOff();
         void junction();
@@ -40,7 +40,7 @@ class Line_Follower {
     private:
         //Sensor values
         uint8_t _extremeLeftReading, _leftReading, _rightReading, _extremeRightReading;
-        uint32_t _ultrasoundReading;
+        float _ultrasoundReading;
 
         //Motor speeds
         uint8_t maxSpeed;

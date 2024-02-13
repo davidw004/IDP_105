@@ -9,14 +9,14 @@ Line_Follower::Line_Follower()
     baseSweepSpeed = 75;
     _correctionFactor = 0.2;
     _blocksCollected = 0;
-    _continueDelay = 500;
+    _continueDelay = 200;
     _turnDelay = 750;
     _correctionTime = 20;
-    _reverseTime = 2500;
+    _reverseTime = 300;
     _exitBoxTime = 200;
     _timeFactor = 0.25; //modify this value according to line adjustment required.
     _commercialPrepare = 7500;
-    swanDist =10;
+    swanDist = 20;
 
     _currentRoute = Routes::CollectBlockOne; //changed to test
     pos = 0;
@@ -194,17 +194,31 @@ void Line_Follower::straight(uint16_t duration)
     delay(duration);
 }
 
-void Line_Follower::turn180()
+void Line_Follower::turn180(int direction)
 {      
-    motorDrive(-turnSpeed, turnSpeed);
-    delay(_turnDelay);
-    //_turnStart = millis();
-    readAllLFSensors();
-    while (_leftReading == 0)
-    { //TIME TURN TO 90 DEGREES.
-        readAllLFSensors();
+    if (direction == LEFT)
+    {
         motorDrive(-turnSpeed, turnSpeed);
+        delay(_turnDelay);
+        //_turnStart = millis();
+        readAllLFSensors();
+        while (_leftReading == 0)
+        { //TIME TURN TO 90 DEGREES.
+            readAllLFSensors();
+        }
     }
+    else
+    {
+        motorDrive(turnSpeed, -turnSpeed);
+        delay(_turnDelay);
+        //_turnStart = millis();
+        readAllLFSensors();
+        while (_rightReading == 0)
+        { //TIME TURN TO 90 DEGREES.
+            readAllLFSensors();
+        }
+    }
+    
     //_turnMid = millis();
     //delay((_turnMid - _turnStart)); //CONTINUES TURN FOR SAME TIME IT TOOK TO REACH 90 DEGREES
     stop();
@@ -241,12 +255,15 @@ void Line_Follower::turn90(bool left, bool OnJunction)
     }
 }
 
-void Line_Follower::driveForwardApproachSpeed(int time_ms)
+void Line_Follower::driveForwardApproachSpeed(unsigned long time_ms)
 {
-    auto Start_Time = millis(); //This code may not run
-    while (millis() < Start_Time + time_ms) // drive forward for a configured bit to get into factory.
-    {
+
+    unsigned long starttime = millis();    
+    unsigned long endtime = starttime;
+    while ((endtime - starttime) <= time_ms) // do this loop for up to 1000mS
+    {   
         motorDrive(approachSpeed, approachSpeed);
+        endtime = millis();
     }
     stop();
 }
@@ -266,29 +283,17 @@ void Line_Follower::approachCube(uint32_t duration) //change duration to distanc
     stop();
 }
 
-void Line_Follower::approachHome(uint32_t distance)
+void Line_Follower::approachHome(float duration)
 {
-    bool under10 = false;
     motorDrive(baseSpeed, baseSpeed);
-    delay(200); //Clearing the white line to prevent junction detection when go() called
-    /*for(uint32_t tStart = millis();  (millis()-tStart) < 1500;)
-    {
+    delay(100); //Clearing the white line to prevent junction detection when go() called
+    unsigned long starttime = millis();    
+    unsigned long endtime = starttime;
+    while ((endtime - starttime) <= duration) // do this loop for up to 1000mS
+    {   
         go();
-    }*/
-    _ultrasoundReading = analogRead(ULTRASOUND);
-    while (_ultrasoundReading > 10)
-    {
-        _ultrasoundReading = analogRead(ULTRASOUND);
-        delay(20);
-        go();
+        endtime = millis();
     }
-    delay(100);
-    while(_ultrasoundReading < 20 || _ultrasoundReading > 30) 
-    {
-        go();
-        _ultrasoundReading = analogRead(ULTRASOUND); //May not be correct
-    }
-    //Stop motors, reached intended coordinate
     stop();
 }
 
@@ -349,13 +354,13 @@ void Line_Follower::junction()
             }
             pos = 0;
             //Maybe some code to drive forwards before turning around??
-            turn180();
+            turn180(LEFT);
             break;
         }
         
         case HOME:
         {
-            approachHome(2000); //this distance will change to ultrasound reading to wall at dropoff position
+            approachHome(1000); //this distance will change to ultrasound reading to wall at dropoff position
             
             cubeRetrieval.dropOff();
             //If _blocksCollected = 1,2 etc select route to next block
@@ -398,7 +403,12 @@ void Line_Follower::junction()
             stop();
 
             cubeRetrieval.raiseClaw();
-            turn180();
+            if (_blockHard)
+            {
+                turn180(LEFT);
+            }
+            else turn180(RIGHT);
+            
             pos = 0;
             break;
         }
@@ -406,23 +416,31 @@ void Line_Follower::junction()
         case ENTERSWAN:
         {   
             // drive forward until in front of factory
-            while (TimeOfFlight.GetDistance() < swanDist)
+            while (TimeOfFlight.GetDistance() > swanDist)
             {
                 go();
             }
 
-            for(uint32_t tStart = millis();  (millis()-tStart) < 500;)
-            {
+            //time for something
+            baseSpeed = 150;
+            unsigned long starttime = millis();    
+            unsigned long endtime = starttime;
+            baseSpeed = 175;
+            while ((endtime - starttime) <= 1500) // do this loop for up to 1000mS
+            {   
                 go();
+                endtime = millis();
             }
-             // drive past start of factory for pre-defined ms to position
+            baseSpeed = 200;
             stop();
+             // drive past start of factory for pre-defined ms to position
 
             // We are positioned in front of the gate now
             turn90(false, false);
             cubeRetrieval.prepare();
-            driveForwardApproachSpeed(3000); // drive to cube and push up against back section (against blocker?)            // pickup block
+            driveForwardApproachSpeed(3500); // drive to cube and push up against back section (against blocker?)            // pickup block
             //Potential need to reverse small distance here
+            stop();
             _blockHard = cubeRetrieval.pickUp();
             delay(2000);
             ledsOff();
