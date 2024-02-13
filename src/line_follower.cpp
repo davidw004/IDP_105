@@ -1,4 +1,9 @@
 #include "Line_Follower.h"
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+bool wheel_running = false;    
+bool blue_led_on = false;
 
 Line_Follower::Line_Follower()
 {
@@ -37,6 +42,47 @@ void Line_Follower::setup()
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
+
+    // Initialize Timer1
+    noInterrupts();           // Disable all interrupts
+    TCCR1A = 0;                // Set entire TCCR1A register to 0
+    TCCR1B = 0;                // Same for TCCR1B
+    
+    // Set timer to CTC (Clear Timer on Compare Match) mode
+    TCCR1B |= (1 << WGM12);
+    
+    // Set compare match register to get 50ms interval
+    // Assuming a 16MHz clock and a 1024 prescaler, calculate OCR1A value:
+    // Timer frequency = 16MHz/1024 = 15625Hz
+    // Interval = (1 / Frequency) * OCR1A = 50ms
+    // OCR1A = Frequency * Interval = 15625 * 0.05 = 781.25 ~ 781
+    OCR1A = 781;
+    
+    // Set CS10 and CS12 bits for 1024 prescaler
+    TCCR1B |= (1 << CS12) | (1 << CS10);
+    
+    // Enable timer compare interrupt
+    TIMSK1 |= (1 << OCIE1A);
+    
+    interrupts();
+}
+
+ISR(TIMER1_COMPA_vect) { // Timer1 interrupt service routine
+  if (wheel_running) 
+  {
+    if (blue_led_on) 
+    {
+        digitalWrite(BLUELED, LOW);
+    }
+    else 
+    {
+        digitalWrite(BLUELED, HIGH);
+    }
+  } 
+  else 
+  {
+    digitalWrite(BLUELED, LOW);
+  }
 }
 
 void Line_Follower::readAllLFSensors()
@@ -100,6 +146,7 @@ void Line_Follower::swanTest()
 
 void Line_Follower::motorDrive(int lspeed, int rspeed)
 {
+    if ( lspeed != 0 || rspeed != 0) wheel_running = true;
     _leftMotor -> setSpeed(abs(lspeed));
     _rightMotor -> setSpeed(abs(rspeed));
 
@@ -116,7 +163,17 @@ void Line_Follower::motorDrive(int lspeed, int rspeed)
 void Line_Follower::go()
 {
     readAllLFSensors();
-    
+    // ticker condition, if timer has just ticked
+    {
+        if (wheel_running)
+        {
+            // toggle blue led every 0.05s
+        }
+        else
+        {
+            // turn blue led off
+        }
+    }
     if (_extremeLeftReading == 1 || _extremeRightReading == 1)
     {   
         Serial.print("junction detected");
@@ -551,6 +608,7 @@ void Line_Follower::stop()
 {
     _rightMotor -> run(RELEASE);
     _leftMotor -> run(RELEASE);
+    wheel_running = false;
     Serial.print("stopping ");
 }
 
