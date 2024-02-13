@@ -78,6 +78,7 @@ ISR(TIMER1_COMPA_vect) { // Timer1 interrupt service routine
     {
         digitalWrite(BLUELED, HIGH);
     }
+    blue_led_on = !blue_led_on;
   } 
   else 
   {
@@ -163,17 +164,6 @@ void Line_Follower::motorDrive(int lspeed, int rspeed)
 void Line_Follower::go()
 {
     readAllLFSensors();
-    // ticker condition, if timer has just ticked
-    {
-        if (wheel_running)
-        {
-            // toggle blue led every 0.05s
-        }
-        else
-        {
-            // turn blue led off
-        }
-    }
     if (_extremeLeftReading == 1 || _extremeRightReading == 1)
     {   
         Serial.print("junction detected");
