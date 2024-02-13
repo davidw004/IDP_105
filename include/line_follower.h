@@ -29,7 +29,7 @@ class Line_Follower {
         void rightTurn();
         void straight(uint16_t duration);
         void turn180(int direciton);
-        void turn90(bool left, bool OnJunction);
+        void turnFactory(bool left, bool OnJunction);
         void driveForwardApproachSpeed(unsigned long time_ms);
         void approachCube(uint32_t duration);
         void approachHome(float duration);

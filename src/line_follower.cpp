@@ -289,33 +289,40 @@ void Line_Follower::turn180(int direction)
     stop();
 }
 
-void Line_Follower::turn90(bool left, bool OnJunction)
+void Line_Follower::turnFactory(bool left, bool leaving)
 {
-    if (!OnJunction)
+    if (!leaving)
     {
         if (left)
         {
             motorDrive(-turnSpeed, turnSpeed);
-            while (_extremeLeftReading == 0)
+            while (_leftReading == 0)
             { // TURN 90 DEGREES.
                 readAllLFSensors();
             }
-            //Straightening adjustment
         }
         else
         {
             motorDrive(turnSpeed, -turnSpeed);
-            while (_extremeRightReading == 0)
+            while (_rightReading == 0)
             { // TURN 90 DEGREES.
                 readAllLFSensors();
             }
-            //Straightening adjustment
         }
+        delay(30); // Straightening adjustment (will probably need changing)
         stop();
         return;
     }
     else
     {
+        if (left)
+        {
+            leftTurn(); stop();
+        }
+        else
+        {
+            rightTurn(); stop();
+        }
         return;
     }
 }
@@ -501,7 +508,7 @@ void Line_Follower::junction()
              // drive past start of factory for pre-defined ms to position
 
             // We are positioned in front of the gate now
-            turn90(false, false);
+            turnFactory(false, false);
             cubeRetrieval.prepare();
             driveForwardApproachSpeed(3500); // drive to cube and push up against back section (against blocker?)            // pickup block
             //Potential need to reverse small distance here
@@ -524,8 +531,8 @@ void Line_Follower::junction()
             stop();
 
             // turn to right on line for now:
-            if (_currentRoute == Routes::BringBlockSToRed) { leftTurn(); stop(); }
-            else { rightTurn(); stop(); }
+            if (_currentRoute == Routes::BringBlockSToRed) { turnFactory(true, true); }
+            else { turnFactory(false, true); }
             break;
         }
 
@@ -562,7 +569,7 @@ void Line_Follower::junction()
             stop();
 
             // We are positioned in front of the gate now
-            turn90(false, false);
+            turnFactory(false, false);
             driveForwardApproachSpeed(3000); // drive to cube by going forward 100ms
 
             // pickup block
@@ -582,7 +589,7 @@ void Line_Follower::junction()
                 motorDrive(-baseSpeed, -baseSpeed);
             }
             stop();
-            turn90(true, false);
+            turnFactory(true, false);
             break;
         }
         /*case EXITLUCOZADE:
