@@ -7,12 +7,12 @@ bool blue_led_on = false;
 extern Ticker tickerObject;
 void TickerDelay(int ms)
 {
-    auto start = millis();
-    unsigned long end = start + ms;
-    while (start < end)
+    unsigned long start = millis();
+    unsigned long end = start;
+    while (end - start < ms)
     {
         tickerObject.update();
-        start = millis();
+        end = millis();
     }
 }
 
@@ -455,7 +455,8 @@ void Line_Follower::junction()
             {
                 go();
             }
-
+            stop();
+            delay(1500);
             //time for something
             baseSpeed = 150;
             unsigned long starttime = millis();    

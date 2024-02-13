@@ -29,7 +29,7 @@ void TickerFunc()
     digitalWrite(BLUELED, LOW);
   }
 }
-  Ticker tickerObject(TickerFunc, 250);
+Ticker tickerObject(TickerFunc, 250);
 
 void setup() {
   Serial.begin(9600);
@@ -40,13 +40,10 @@ void setup() {
   {
     delay(50);
   }
-  //robot.exitbox();
-  robot.swanTest();
+  tickerObject.start();
+  robot.exitbox();
 }
 void loop()
 {
   robot.go();
-  Serial.print(timeOF.GetDistance());
-  Serial.print(" ");
-  delay(250);
 }
