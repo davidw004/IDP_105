@@ -3,24 +3,24 @@
 #include "cube_retrieval.h"
 
 Line_Follower robot;
-Cube_Retrieval cube;
-TOFSensor timeOF;
+//Cube_Retrieval cube;
+//TOFSensor timeOF;
 void setup() {
   Serial.begin(9600);
   robot.setup();
-  cube.setup();
-  timeOF.Setup();
+  //cube.setup();
+  //timeOF.Setup();
   while (digitalRead(BUTTON1) != 1)
   {
     delay(50);
   }
-  //robot.exitbox();
-  robot.swanTest();
+  robot.exitbox();
+  //robot.swanTest();
 }
 void loop()
 {
   robot.go();
-  Serial.print(timeOF.GetDistance());
-  Serial.print(" ");
-  delay(250);
+  //Serial.print(timeOF.GetDistance());
+  //Serial.print(" ");
+  //delay(250);
 }

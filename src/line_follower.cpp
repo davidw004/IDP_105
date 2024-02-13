@@ -13,7 +13,6 @@ Line_Follower::Line_Follower()
     approachSpeed = 125;
     baseSweepSpeed = 75;
     _correctionFactor = 0.2;
-    _blocksCollected = 0;
     _continueDelay = 200;
     _turnDelay = 750;
     _correctionTime = 20;
@@ -22,8 +21,10 @@ Line_Follower::Line_Follower()
     _timeFactor = 0.25; //modify this value according to line adjustment required.
     _commercialPrepare = 7500;
     swanDist = 20;
+    lucozadeDist = 20;
 
     _currentRoute = Routes::CollectBlockOne; //changed to test
+    _blocksCollected = 0; //edited
     pos = 0;
 }
 
@@ -44,30 +45,30 @@ void Line_Follower::setup()
     cubeRetrieval.setup();
 
     // Initialize Timer1
-    noInterrupts();           // Disable all interrupts
-    TCCR1A = 0;                // Set entire TCCR1A register to 0
-    TCCR1B = 0;                // Same for TCCR1B
+    //noInterrupts();           // Disable all interrupts
+    //TCCR1A = 0;                // Set entire TCCR1A register to 0
+    //TCCR1B = 0;                // Same for TCCR1B
     
     // Set timer to CTC (Clear Timer on Compare Match) mode
-    TCCR1B |= (1 << WGM12);
+    //TCCR1B |= (1 << WGM12);
     
     // Set compare match register to get 50ms interval
     // Assuming a 16MHz clock and a 1024 prescaler, calculate OCR1A value:
     // Timer frequency = 16MHz/1024 = 15625Hz
     // Interval = (1 / Frequency) * OCR1A = 50ms
     // OCR1A = Frequency * Interval = 15625 * 0.05 = 781.25 ~ 781
-    OCR1A = 781;
+    //OCR1A = 781;
     
     // Set CS10 and CS12 bits for 1024 prescaler
-    TCCR1B |= (1 << CS12) | (1 << CS10);
+    //TCCR1B |= (1 << CS12) | (1 << CS10);
     
     // Enable timer compare interrupt
-    TIMSK1 |= (1 << OCIE1A);
+    //TIMSK1 |= (1 << OCIE1A);
     
-    interrupts();
+    //interrupts();
 }
 
-ISR(TIMER1_COMPA_vect) { // Timer1 interrupt service routine
+/*ISR(TIMER1_COMPA_vect) { // Timer1 interrupt service routine
   if (wheel_running) 
   {
     if (blue_led_on) 
@@ -83,7 +84,7 @@ ISR(TIMER1_COMPA_vect) { // Timer1 interrupt service routine
   {
     digitalWrite(BLUELED, LOW);
   }
-}
+}*/
 
 void Line_Follower::readAllLFSensors()
 {
@@ -165,15 +166,10 @@ void Line_Follower::go()
     readAllLFSensors();
     // ticker condition, if timer has just ticked
     {
-        if (wheel_running)
-        {
-            // toggle blue led every 0.05s
-        }
-        else
-        {
-            // turn blue led off
-        }
+        if (wheel_running){}// toggle blue led every 0.05s
+        else {}// turn blue led off
     }
+
     if (_extremeLeftReading == 1 || _extremeRightReading == 1)
     {   
         Serial.print("junction detected");
@@ -261,7 +257,7 @@ void Line_Follower::straight(uint16_t duration)
 
 void Line_Follower::turn180(int direction)
 {      
-    if (direction == LEFT)
+    if (direction == LEFTTURN)
     {
         motorDrive(-turnSpeed, turnSpeed);
         delay(_turnDelay);
@@ -289,41 +285,27 @@ void Line_Follower::turn180(int direction)
     stop();
 }
 
-void Line_Follower::turnFactory(bool left, bool leaving)
+void Line_Follower::turnFactory(int direction, bool leaving)
 {
     if (!leaving)
     {
-        if (left)
+        if (direction == LEFTTURN)
         {
             motorDrive(-turnSpeed, turnSpeed);
-            while (_leftReading == 0)
-            { // TURN 90 DEGREES.
-                readAllLFSensors();
-            }
+            while (_leftReading == 0) readAllLFSensors();
         }
         else
         {
             motorDrive(turnSpeed, -turnSpeed);
-            while (_rightReading == 0)
-            { // TURN 90 DEGREES.
-                readAllLFSensors();
-            }
+            while (_rightReading == 0) readAllLFSensors();
         }
         delay(30); // Straightening adjustment (will probably need changing)
         stop();
-        return;
     }
     else
     {
-        if (left)
-        {
-            leftTurn(); stop();
-        }
-        else
-        {
-            rightTurn(); stop();
-        }
-        return;
+        if (direction == LEFTTURN) {leftTurn(); stop();}
+        else rightTurn(); stop();
     }
 }
 
@@ -342,14 +324,17 @@ void Line_Follower::driveForwardApproachSpeed(unsigned long time_ms)
 
 void Line_Follower::approachCube(uint32_t duration) //change duration to distance using ultrasound
 {   
-    Serial.print("in approach cube func ");
     //Currently just hard coding the distance from final turn to the block. Will likely need editing
     motorDrive(approachSpeed, approachSpeed);
     delay(200); //Clearing the white line to prevent junction detection when go() called
     baseSpeed = approachSpeed;
-    for(uint32_t tStart = millis();  (millis()-tStart) < duration;) //Replace this with while ultrasound less than distance passed to func
-    {
+
+    unsigned long starttime = millis();    
+    unsigned long endtime = starttime;
+    while ((endtime - starttime) <= duration) // do this loop for up to 1000mS
+    {   
         go();
+        endtime = millis();
     }
     baseSpeed = 200;
     stop();
@@ -426,7 +411,7 @@ void Line_Follower::junction()
             }
             pos = 0;
             //Maybe some code to drive forwards before turning around??
-            turn180(LEFT);
+            turn180(LEFTTURN);
             break;
         }
         
@@ -477,9 +462,9 @@ void Line_Follower::junction()
             cubeRetrieval.raiseClaw();
             if (_blockHard)
             {
-                turn180(LEFT);
+                turn180(LEFTTURN);
             }
-            else turn180(RIGHT);
+            else turn180(RIGHTTURN);
             
             pos = 0;
             break;
@@ -497,7 +482,6 @@ void Line_Follower::junction()
             baseSpeed = 150;
             unsigned long starttime = millis();    
             unsigned long endtime = starttime;
-            baseSpeed = 175;
             while ((endtime - starttime) <= 1500) // do this loop for up to 1000mS
             {   
                 go();
@@ -507,12 +491,14 @@ void Line_Follower::junction()
             stop();
              // drive past start of factory for pre-defined ms to position
 
-            // We are positioned in front of the gate now
-            turnFactory(false, false);
+            // We are positioned in front of the gate now, turn right with leaving false (ie entering)
+            turnFactory(RIGHTTURN, false);
             cubeRetrieval.prepare();
-            driveForwardApproachSpeed(3500); // drive to cube and push up against back section (against blocker?)            // pickup block
+            driveForwardApproachSpeed(3000); // drive to cube and push up against back section (against blocker?)            // pickup block
             //Potential need to reverse small distance here
             stop();
+
+            cubeRetrieval.closeClaw(3000); //Close claw so ultrasound can detect cube type
             _blockHard = cubeRetrieval.pickUp();
             delay(2000);
             ledsOff();
@@ -531,55 +517,42 @@ void Line_Follower::junction()
             stop();
 
             // turn to right on line for now:
-            if (_currentRoute == Routes::BringBlockSToRed) { turnFactory(true, true); }
-            else { turnFactory(false, true); }
+            if (_currentRoute == Routes::BringBlockSToRed) { turnFactory(LEFTTURN, true); }
+            else { turnFactory(RIGHTTURN, true); }
             break;
         }
 
-        /*case EXITSWAN:
-        {
-            // reverse until hit white line:
-            while (_extremeLeftReading == 0 && _extremeRightReading == 0)
-            {
-                motorDrive(-baseSpeed, -baseSpeed);                
-            }
-            motorDrive(0, 0);
-
-            // turn to right on line for now:
-            turn90(false, false);
-
-            break;
-        }*/
-
         case ENTERLUCOZADE:
         {
-            // drive forward until in front of factory
-            int LucozadeDist = 10;
-            while (TimeOfFlight.GetDistance() > LucozadeDist)
+            // drive forward until in front of factor
+            while (TimeOfFlight.GetDistance() > lucozadeDist)
             {
                 go();
             }
 
-            for(uint32_t tStart = millis();  (millis()-tStart) < 500;)
-            {
+            unsigned long starttime = millis();    
+            unsigned long endtime = starttime;
+            while ((endtime - starttime) <= 1500) // do this loop for up to 1000mS
+            {   
                 go();
+                endtime = millis();
             }
 
              // drive past start of factory for pre-defined ms to position
             stop();
 
             // We are positioned in front of the gate now
-            turnFactory(false, false);
-            driveForwardApproachSpeed(3000); // drive to cube by going forward 100ms
+            turnFactory(RIGHTTURN, false);
+            driveForwardApproachSpeed(3500); // drive to cube by going forward 100ms
 
             // pickup block
-
+            cubeRetrieval.closeClaw(3000); //Close claw to uses ultrasound
             _blockHard =  cubeRetrieval.pickUp();
             ledsOff();
 
             _blocksCollected++;
             //Select route home based on current array and blockHard
-            if (_blockHard)_currentRoute = Routes::BringBlockLToRed;
+            if (_blockHard) _currentRoute = Routes::BringBlockLToRed;
             else _currentRoute = Routes::BringBlockLToGreen;
 
             pos = 0;
@@ -589,19 +562,9 @@ void Line_Follower::junction()
                 motorDrive(-baseSpeed, -baseSpeed);
             }
             stop();
-            turnFactory(true, false);
+            turnFactory(LEFTTURN, true);
             break;
         }
-        /*case EXITLUCOZADE:
-        {
-            // reverse until hit white line:
-            while (_extremeLeftReading == 0 && _extremeRightReading == 0)
-            {
-                motorDrive(-baseSpeed, -baseSpeed);
-            }
-            stop();
-            turn90(true, false);
-        }*/
 
         default:
         {

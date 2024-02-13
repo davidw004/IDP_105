@@ -18,6 +18,7 @@ class Cube_Retrieval
     void ultrasoundTest();
     float readUltrasound();
     void raiseClaw();
+    void closeClaw(int duration);
     void prepare();
 
     private:

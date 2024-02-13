@@ -71,6 +71,14 @@ void Cube_Retrieval::raiseClaw() // Closes then raises claw
     }
 }
 
+void Cube_Retrieval::closeClaw(int duration)
+{
+    _clawMotor -> setSpeed(baseSpeed);
+    _clawMotor -> run(BACKWARD);
+    delay(duration);
+    _clawMotor -> run(RELEASE);
+}
+
 bool Cube_Retrieval::detectCube() //Can be ran for both commercial and industrial
 {
     if (readUltrasound() < 5) return HARDBLOCK;
