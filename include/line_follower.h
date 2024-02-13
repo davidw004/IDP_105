@@ -28,11 +28,10 @@ class Line_Follower {
         void adjust(int direction);
         void leftTurn();
         void rightTurn();
-        void straight(uint16_t duration);
+        void straight(uint16_t duration, int speed);
         void reverse(int duration, int speed);
         void turn180(int direciton);
         void turnFactory(int direction, bool OnJunction);
-        void driveForwardApproachSpeed(unsigned long time_ms);
         void approachCube(uint32_t duration);
         void approachHome(float duration);
         void enterIndustrial();
@@ -52,6 +51,7 @@ class Line_Follower {
         uint8_t baseSpeed, approachSpeed;
         uint8_t baseSweepSpeed;
         uint8_t turnSpeed;
+        uint8_t approachIndustrialSpeed;
         float _correctionFactor;
         
         //Timings for functions
@@ -65,6 +65,8 @@ class Line_Follower {
         uint32_t _turnStart, _turnEnd, _turnMid;
         uint8_t _timeFactor;
         uint32_t _turnDelay, _continueDelay;
+        uint32_t appoachHomeDuration;
+        uint32_t approachIndustrialDuration;
         
         //Block detection and decision making
         bool _blockHard;

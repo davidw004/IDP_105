@@ -1,5 +1,6 @@
 #include "cube_retrieval.h"
 
+ //Define all member variables
 Cube_Retrieval::Cube_Retrieval()
 {
     baseSpeed = 250;
@@ -10,6 +11,7 @@ Cube_Retrieval::Cube_Retrieval()
     _atEnd = false;
 }
 
+//Setup pins as I/O ports and setup motors
 void Cube_Retrieval::setup()
 {
     pinMode(LIMITSWITCH, INPUT);
@@ -18,7 +20,8 @@ void Cube_Retrieval::setup()
     AFMS.begin();
 }
 
-bool Cube_Retrieval::pickUp() //code to pickup and detect block
+//Code to detect block then pickup block
+bool Cube_Retrieval::pickUp()
 {   
     //logic to detect cube and display LEDs
     _blockType = detectCube();
@@ -44,6 +47,7 @@ bool Cube_Retrieval::pickUp() //code to pickup and detect block
     }
 }*/
 
+//Testing ultrasound
 void Cube_Retrieval::ultrasoundTest()
 {
     float reading = analogRead(ULTRASOUND)* MAX_RANG / ADC_SOLUTION;
@@ -52,12 +56,14 @@ void Cube_Retrieval::ultrasoundTest()
     delay(1000);
 }
 
+//Simple ultrasound read
 float Cube_Retrieval::readUltrasound()
 {
     return analogRead(ULTRASOUND)* MAX_RANG / ADC_SOLUTION;
 }
 
-void Cube_Retrieval::raiseClaw() // Closes then raises claw
+// Closes then raises claw
+void Cube_Retrieval::raiseClaw()
 {   
     _atEnd = false;
     _clawMotor -> setSpeed(baseSpeed);
@@ -71,6 +77,7 @@ void Cube_Retrieval::raiseClaw() // Closes then raises claw
     }
 }
 
+//Close claw for set duration
 void Cube_Retrieval::closeClaw(int duration)
 {
     _clawMotor -> setSpeed(baseSpeed);
@@ -79,14 +86,15 @@ void Cube_Retrieval::closeClaw(int duration)
     _clawMotor -> run(RELEASE);
 }
 
-bool Cube_Retrieval::detectCube() //Can be ran for both commercial and industrial
+//Detect cube type
+bool Cube_Retrieval::detectCube() 
 {
     if (readUltrasound() < 5) return HARDBLOCK;
     else return SOFTBLOCK;
 }
 
-
-void Cube_Retrieval::dropOff() //Drops block into home
+//Drop cube into home section
+void Cube_Retrieval::dropOff()
 {   
     _clawMotor -> setSpeed(baseSpeed);
     _clawMotor -> run(FORWARD);
@@ -94,7 +102,8 @@ void Cube_Retrieval::dropOff() //Drops block into home
     _clawMotor -> run(RELEASE);
 }
 
-void Cube_Retrieval::prepare() //Pass in duration, smaller for commercial zone
+//Open claw in preparation to pickup cube
+void Cube_Retrieval::prepare() 
 {   
     Serial.print("in prepare func ");
     /*if (duration == 0)

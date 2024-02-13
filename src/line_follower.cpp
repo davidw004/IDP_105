@@ -5,6 +5,8 @@ bool wheel_running = false;
 bool blue_led_on = false;
 
 extern Ticker tickerObject;
+
+//Non-member function used to run delays without turing off blue LED
 void TickerDelay(int ms)
 {
     unsigned long start = millis();
@@ -16,21 +18,27 @@ void TickerDelay(int ms)
     }
 }
 
+//Define all member variables
 Line_Follower::Line_Follower()
 {
-    maxSpeed = 200;
+    //Speeds
+    maxSpeed = 255;
     baseSpeed = 200;
     turnSpeed = 125;
     approachSpeed = 125;
+    approachIndustrialSpeed = 175;
     baseSweepSpeed = 75;
+
     _correctionFactor = 0.2;
     _continueDelay = 200;
     _turnDelay = 750;
     _correctionTime = 20;
     _reverseTime = 300;
     _exitBoxTime = 200;
-    _timeFactor = 0.25; //modify this value according to line adjustment required.
+    _timeFactor = 0.25;
     _commercialPrepare = 7500;
+    appoachHomeDuration = 1000;
+    approachIndustrialDuration = 1650;
     swanDist = 20.0f;
     lucozadeDist = 20.0f;
 
@@ -39,27 +47,29 @@ Line_Follower::Line_Follower()
     pos = 0;
 }
 
+//Setup pins as I/O ports and setup motors
 void Line_Follower::setup()
 {
+    //Setup line sensors
     pinMode(LINESENSOR1, INPUT);
     pinMode(LINESENSOR2, INPUT);
     pinMode(LINESENSOR3, INPUT);
     pinMode(LINESENSOR4, INPUT);
     pinMode(BUTTON1, INPUT);
 
+    //Setup LEDs
     pinMode(REDLED, OUTPUT);
     pinMode(GREENLED, OUTPUT);
     pinMode(BLUELED, OUTPUT);
 
+    //Setup motors and cube retrieval / TOF 
     _leftMotor = AFMS.getMotor(1);
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
     TimeOfFlight.Setup();
-
-    // Ticker tickerObject(TickerFunc, 250);
-    // tickerObject.start(); //start the ticker.
 }
 
+//Function to read all line sensors and set readings
 void Line_Follower::readAllLFSensors()
 {
     _extremeLeftReading = digitalRead(LINESENSOR1);
@@ -68,9 +78,10 @@ void Line_Follower::readAllLFSensors()
     _extremeRightReading = digitalRead(LINESENSOR4); 
 }
 
-//TUNE TIME OF SWEEP AND MOTOR SPEEDS 
-void Line_Follower::sweep()
-{ //FINDS LINE. ONLY WORKS IF LINE IS BETWEEN INNER AND OUTER SENSORS, AND AWAY FROM A JUNCTION 
+//Currently unused as robot never comes off track
+void Line_Follower::sweep() 
+{
+    //FINDS LINE. ONLY WORKS IF LINE IS BETWEEN INNER AND OUTER SENSORS, AND AWAY FROM A JUNCTION 
     motorDrive(-baseSweepSpeed, baseSweepSpeed); //sweeps left 
     _startTime = millis();
     for(uint32_t _startTime = millis();  (millis() - _startTime) < 1000;) //Replace this with while ultrasound less than distance passed to func
@@ -94,63 +105,49 @@ void Line_Follower::sweep()
  
 }
 
-//TUNE DELAY 
-void Line_Follower::exitbox()
+//Code to exit box
+void Line_Follower::exitbox() 
 {
-    cubeRetrieval.raiseClaw();
-    //Turn LED on
-    //digitalWrite(BLUELED, HIGH);
-
-    //Run motors forwards
-
-    while (_extremeLeftReading == 0 && _extremeRightReading == 0){ //drive up to box edge
+    cubeRetrieval.raiseClaw(); //Raise claw first
+    while (_extremeLeftReading == 0 && _extremeRightReading == 0) //Drive up to box edge
+    {
         tickerObject.update();
         motorDrive(baseSpeed, baseSpeed);
         readAllLFSensors();
         Serial.print("exiting box ");
     }
     Serial.print("exited box and waiting ");
-    //Wait until exited box, ie central line sensors are past the white line
-    TickerDelay(_exitBoxTime);
+    TickerDelay(_exitBoxTime); //Wait until exited box, ie central line sensors are past the white line
 }
 
-void Line_Follower::swanTest()
+//Test function used for industrial area
+void Line_Follower::swanTest() 
 {
     cubeRetrieval.raiseClaw();
     //Turn LED on
     _currentRoute = Routes::TestSwan;
 }
 
-void Line_Follower::motorDrive(int lspeed, int rspeed)
+//Runs motors at the speeds entered
+void Line_Follower::motorDrive(int lspeed, int rspeed) 
 {
-    if ( lspeed != 0 || rspeed != 0) wheel_running = true;
+    if ( lspeed != 0 || rspeed != 0) wheel_running = true; //Indicates robot is moving for ticker
     _leftMotor -> setSpeed(abs(lspeed));
     _rightMotor -> setSpeed(abs(rspeed));
 
-    if (lspeed < 0){_leftMotor -> run(FORWARD);}
-    else if (lspeed > 0){_leftMotor -> run(BACKWARD);}
-    else if (lspeed == 0){_leftMotor -> run(RELEASE);}
+    if (lspeed < 0){_leftMotor -> run(FORWARD);} //If negative run motor in reverse
+    else if (lspeed > 0){_leftMotor -> run(BACKWARD);} //If positive run correct direction
+    else if (lspeed == 0){_leftMotor -> run(RELEASE);} //If 0 stop running motor
 
     if (rspeed < 0){_rightMotor -> run(FORWARD);}
     else if (rspeed > 0){_rightMotor -> run(BACKWARD);}
     else if (rspeed == 0){_rightMotor -> run(RELEASE);}
 }
 
-//TUNE _timeFactor VARIABLE. LINE SENSOR INITIALISATION MOVED TO setup().
-void Line_Follower::go()
+//Looped function which line follows
+void Line_Follower::go() 
 {
     readAllLFSensors();
-    // ticker condition, if timer has just ticked
-    {
-        if (wheel_running)
-        {
-            // toggle blue led every 0.05s
-        }
-        else
-        {
-            // turn blue led off
-        }
-    }
     if (_extremeLeftReading == 1 || _extremeRightReading == 1)
     {   
         Serial.print("junction detected");
@@ -163,15 +160,18 @@ void Line_Follower::go()
         motorDrive(baseSpeed, baseSpeed);
     }
 
-    else if (_leftReading == 1 && _rightReading == 0){ //If left high (white) and right low (black) then change motor speed to turn left
+    else if (_leftReading == 1 && _rightReading == 0)
+    { //If left high and right low then change motor speed to turn left
         Serial.print("adjusting left ");
         adjust(LEFTTURN);
     }
+
     else if (_leftReading == 0 && _rightReading == 1)
-    { //If left high and right low then change motor speed to turn left
+    { //If left low and right high then change motor speed to turn right
         Serial.print("adjusting right ");
         adjust(RIGHTTURN);
     }
+
     else if (_leftReading == 0 && _rightReading == 0)
     {
         motorDrive(baseSpeed, baseSpeed);
@@ -179,21 +179,23 @@ void Line_Follower::go()
 
 }
 
-void Line_Follower::timedGo(int duration, int speed)
+//Run go for duration passed into func at speed given
+void Line_Follower::timedGo(int duration, int speed) 
 {
-    baseSpeed = speed;
+    baseSpeed = speed; //This is very questionable but too much effort to change code since currently working
     unsigned long starttime = millis();    
     unsigned long endtime = starttime;
-    while ((endtime - starttime) <= duration) // do this loop for up to 1000mS
+    while ((endtime - starttime) <= duration) // do this loop for duration
     {   
         go();
         tickerObject.update();
         endtime = millis();
     }
-    baseSpeed = 200;
+    baseSpeed = 200; //Set baseSpeed back to what it should be
 }
 
-void Line_Follower::adjust(int direction)
+//Line follower extension
+void Line_Follower::adjust(int direction) 
 {
     if (direction == LEFTTURN)
     {   
@@ -218,7 +220,8 @@ void Line_Follower::adjust(int direction)
         //_rightMotor -> run(FORWARD);*/
 }
 
-void Line_Follower::leftTurn()
+//Turn left until left sensor is on line
+void Line_Follower::leftTurn() 
 {   
     Serial.print("turning left now");
     motorDrive(-turnSpeed, turnSpeed);
@@ -230,10 +233,11 @@ void Line_Follower::leftTurn()
         tickerObject.update();
         _leftReading = digitalRead(LINESENSOR2);   
     }
-    TickerDelay(50);    
+    TickerDelay(50); //Small delay to allow wheels to reach central position
 }
 
-void Line_Follower::rightTurn()
+//Turn right until right sensor is on line
+void Line_Follower::rightTurn() 
 {
     motorDrive(turnSpeed, -turnSpeed); 
     TickerDelay(_turnDelay);
@@ -243,29 +247,32 @@ void Line_Follower::rightTurn()
         tickerObject.update();
         _rightReading = digitalRead(LINESENSOR3);
     }
-    TickerDelay(50);
+    TickerDelay(50); ////Small delay to allow wheels to reach central position
 }
 
-void Line_Follower::straight(uint16_t duration)
+//Drive straight for duration passed into func
+void Line_Follower::straight(uint16_t duration, int speed) 
 {
-    motorDrive(baseSpeed, baseSpeed);
+    motorDrive(speed, speed);
     TickerDelay(duration);
 }
 
-void Line_Follower::reverse(int duration, int speed)
+//Reverse at speed given for duration
+void Line_Follower::reverse(int duration, int speed) 
 {
     unsigned long starttime = millis();    
     unsigned long endtime = starttime;
-    while ((endtime - starttime) <= duration) // do this loop for up to 1000mS
+    while ((endtime - starttime) <= duration)
     {   
         motorDrive(-speed, -speed);
         tickerObject.update();
         endtime = millis();
     }
-    stop();
+    stop(); //Will always stop motors after reversing
 }
 
-void Line_Follower::turn180(int direction)
+//Turn 180 on line in either left or right direction
+void Line_Follower::turn180(int direction) 
 {      
     if (direction == LEFTTURN)
     {
@@ -297,64 +304,53 @@ void Line_Follower::turn180(int direction)
     stop();
 }
 
-void Line_Follower::turnFactory(int direction, bool leaving)
+//When turning into factory, decide whether wide or narrow sensors trigger
+void Line_Follower::turnFactory(int direction, bool leaving) 
 {
     if (!leaving)
     {
-        if (direction == LEFTTURN)
+        if (direction == LEFTTURN) //Currently redundant as will always turn right into empty regions
         {   
             motorDrive(-turnSpeed, turnSpeed);
-            TickerDelay(_turnDelay);
+            TickerDelay(_turnDelay); //Delay to clear line for detection (not actually needed for wide sensor)
             while (_extremeRightReading == 0) {tickerObject.update(); readAllLFSensors();}
         }
         else
         {
             motorDrive(turnSpeed, -turnSpeed);
-            TickerDelay(_turnDelay);
+            TickerDelay(_turnDelay); //Delay to clear line for detection (not actually needed for wide sensor)
             while (_extremeLeftReading == 0) {tickerObject.update(); readAllLFSensors();}
         }
-        TickerDelay(300);
+        TickerDelay(300); //Small delay to straighten up
         stop();
     }
     else
     {
-        if (direction == LEFTTURN) {leftTurn(); stop();}
+        if (direction == LEFTTURN) {leftTurn(); stop();} //WHen leaving can use normal left turn
         else rightTurn(); stop();
     }
 }
 
-void Line_Follower::driveForwardApproachSpeed(unsigned long time_ms)
-{
-
-    unsigned long starttime = millis();    
-    unsigned long endtime = starttime;
-    while ((endtime - starttime) <= time_ms) // do this loop for up to 1000mS
-    {   
-        motorDrive(approachSpeed, approachSpeed);
-        tickerObject.update();
-        endtime = millis();
-    }
-    stop();
-}
-
-void Line_Follower::approachCube(uint32_t duration) //change duration to distance using ultrasound
+//change duration to distance using ultrasound
+void Line_Follower::approachCube(uint32_t duration) 
 {   
     //Currently just hard coding the distance from final turn to the block. Will likely need editing
-    motorDrive(approachSpeed, approachSpeed);
-    TickerDelay(200); //Clearing the white line to prevent junction detection when go() called
+    straight(200, approachSpeed); //Clearing the white line to prevent junction detection when go() called
     timedGo(duration, approachSpeed);
     stop();
 }
 
-void Line_Follower::approachHome(float duration)
+//Hard coded duration to drive to home from final junction
+void Line_Follower::approachHome(float duration) 
 {
     motorDrive(baseSpeed, baseSpeed);
     TickerDelay(100); //Clearing the white line to prevent junction detection when go() called
     timedGo(duration, baseSpeed);
-    stop();
+    stop(); //Will always stop after approaching home
 }
 
-void Line_Follower::enterIndustrial()
+//From last junction, run this to collect cube from industrial
+void Line_Follower::enterIndustrial() 
 {
     // drive forward until in front of factory
     while (TimeOfFlight.GetDistance() > swanDist)
@@ -363,9 +359,7 @@ void Line_Follower::enterIndustrial()
         tickerObject.update();
     }
     stop();
-    //TickerDelay(1500); debugging
-    //time for something
-    timedGo(1650, 175);
+    timedGo(approachIndustrialDuration, approachIndustrialSpeed); //Carry on driving forwards to reach centre of open section
     stop();
         // drive past start of factory for pre-defined ms to position
 
@@ -373,7 +367,7 @@ void Line_Follower::enterIndustrial()
     turnFactory(RIGHTTURN, false);
     reverse(300, approachSpeed);
     cubeRetrieval.prepare();
-    driveForwardApproachSpeed(2000); // drive to cube and push up against back section (against blocker?)            // pickup block
+    straight(2000, approachSpeed); // drive to cube and push up against back section (against blocker?)            // pickup block
     //Potential need to reverse small distance here
     stop();
     cubeRetrieval.closeClaw(1000); //Close claw so ultrasound can detect cube type
@@ -386,7 +380,8 @@ void Line_Follower::enterIndustrial()
     ledsOff();
 }
 
-void Line_Follower::reverseToLine()
+//Reverse until wide line sensors triggered
+void Line_Follower::reverseToLine() 
 {
     readAllLFSensors();
     while (_extremeLeftReading == 0 && _extremeRightReading == 0)
@@ -398,10 +393,9 @@ void Line_Follower::reverseToLine()
     stop();
 }
 
-void Line_Follower::junction()
-{   
-    Serial.print("in junction func");
-    Serial.print(_currentRoute[pos]);
+//Decision on where to turn then block related functions
+void Line_Follower::junction() 
+{
     switch (_currentRoute[pos])
     {  
         case LEFT:
@@ -416,7 +410,7 @@ void Line_Follower::junction()
         }
         case STRAIGHT:
         {
-            straight(_continueDelay);
+            straight(_continueDelay, baseSpeed);
             break;
         }
         default:
@@ -424,21 +418,20 @@ void Line_Follower::junction()
             break;
         }
     }
+    
     pos++;
+
     switch(_currentRoute[pos])
     {   
         case BLOCK:
-        {   
-            Serial.print("in block section");
+        {
             stop();
-            Serial.print("returned from stop");
             cubeRetrieval.prepare(); //7500 for commercial zone pickup, change to limit switch
 
             if (_blocksCollected == 0) approachCube(1000); //note at slow speed
             else if (_blocksCollected == 1) approachCube(1000);
-            //Either more else ifs or potentially add new switch case for industrial blocks
             _blockHard =  cubeRetrieval.pickUp();
-            TickerDelay(2000);
+            //TickerDelay(2000);
             ledsOff();
 
             _blocksCollected++;
@@ -461,8 +454,7 @@ void Line_Follower::junction()
         
         case HOME:
         {
-            approachHome(1000); //this distance will change to ultrasound reading to wall at dropoff position
-            
+            approachHome(appoachHomeDuration); //drive for set duration of time before dropping off cube
             cubeRetrieval.dropOff();
             //If _blocksCollected = 1,2 etc select route to next block
 
@@ -474,12 +466,14 @@ void Line_Follower::junction()
                     else _currentRoute = Routes::CollectBlockTwoFromGreen;
                     break;
                 }
+
                 case 2:
                 {
                     if (_blockHard) _currentRoute = Routes::CollectBlockSFromRed;
                     else _currentRoute = Routes::CollectBlockLFromGreen;
                     break;
                 }
+
                 case 3:
                 {
                     if (_currentRoute == Routes::BringBlockLToGreen) _currentRoute = Routes::CollectBlockSFromGreen;
@@ -487,29 +481,30 @@ void Line_Follower::junction()
                     else if (_currentRoute == Routes::BringBlockSToGreen) _currentRoute = Routes::CollectBlockLFromGreen;
                     else if (_currentRoute == Routes::BringBlockSToRed) _currentRoute = Routes::CollectBlockLFromRed;
                 }
+
                 case 4:
                 {
                     if (_blockHard) _currentRoute = Routes::ReturnHomeFromRed;
                     else _currentRoute = Routes::ReturnHomeFromGreen;
                 }
+
                 default:
                 {
                     break;
                 }
-                
             }
 
-            motorDrive(-baseSpeed, -baseSpeed);
+            motorDrive(-baseSpeed, -baseSpeed); //Reverse to bring claw up
             TickerDelay(_reverseTime);
             stop();
 
-            cubeRetrieval.raiseClaw();
-            if (_blockHard)
+            cubeRetrieval.raiseClaw(); //Lift claw
+
+            if (_blockHard) //Depending on which side, turn 180
             {
                 turn180(LEFTTURN);
             }
             else turn180(RIGHTTURN);
-            
             pos = 0;
             break;
         }
@@ -522,25 +517,21 @@ void Line_Follower::junction()
             if (_blockHard) _currentRoute = Routes::BringBlockSToRed;
             else _currentRoute = Routes::BringBlockSToGreen;
             pos = 0;
-
             reverseToLine();
 
             // turn to right on line for now:
-            if (_currentRoute == Routes::BringBlockSToRed) { turnFactory(LEFTTURN, true); }
+            if (_currentRoute == Routes::BringBlockSToRed) {turnFactory(LEFTTURN, true); }
             else { turnFactory(RIGHTTURN, true); }
-
             break;
         }
 
         case ENTERLUCOZADE:
         {
             enterIndustrial();
-
             _blocksCollected++;
             //Select route home based on current array and blockHard
             if (_blockHard) _currentRoute = Routes::BringBlockLToRed;
             else _currentRoute = Routes::BringBlockLToGreen;
-
             pos = 0;
             // reverse until hit white line:
             reverseToLine();
@@ -550,13 +541,14 @@ void Line_Follower::junction()
 
         default:
         {
-            straight(200); //to clear junction for line line following
+            straight(_continueDelay, baseSpeed); //to clear junction for line line following
             break;
         }
     }
 }
 
-void Line_Follower::stop()
+//Stop all motors (can techically be called through motorDrive but more obvious here)
+void Line_Follower::stop() 
 {
     _rightMotor -> run(RELEASE);
     _leftMotor -> run(RELEASE);
@@ -564,7 +556,8 @@ void Line_Follower::stop()
     Serial.print("stopping ");
 }
 
-void Line_Follower::ledsOff()
+//Turn detection LEDs off
+void Line_Follower::ledsOff() 
 {
     digitalWrite(REDLED, LOW);
     digitalWrite(GREENLED, LOW);

@@ -1,9 +1,11 @@
 #include "TOFSensor.h"
 
+//No constructor
 TOFSensor::TOFSensor()
 {
 }
 
+//Setup TOF
 void TOFSensor::Setup()
 {
     //join i2c bus (address optional for master)
@@ -16,6 +18,7 @@ void TOFSensor::Setup()
     sensor.start();
 }
 
+//Return distance in cm
 float TOFSensor::GetDistance()
 {   
     return sensor.getDistance() / 10; // Sensor works in mm while Ultrasound works in cm
