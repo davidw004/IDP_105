@@ -1,9 +1,28 @@
 #include "Line_Follower.h"
-#include <avr/io.h>
-#include <avr/interrupt.h>
+#include <Ticker.h>
 
 bool wheel_running = false;    
 bool blue_led_on = false;
+
+void TickerFunc() 
+{ // Timer1 interrupt service routine
+  if (wheel_running) 
+  {
+    if (blue_led_on) 
+    {
+        digitalWrite(BLUELED, LOW);
+    }
+    else 
+    {
+        digitalWrite(BLUELED, HIGH);
+    }
+    blue_led_on = !blue_led_on;
+  } 
+  else 
+  {
+    digitalWrite(BLUELED, LOW);
+  }
+}
 
 Line_Follower::Line_Follower()
 {
@@ -43,47 +62,8 @@ void Line_Follower::setup()
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
 
-    // Initialize Timer1
-    noInterrupts();           // Disable all interrupts
-    TCCR1A = 0;                // Set entire TCCR1A register to 0
-    TCCR1B = 0;                // Same for TCCR1B
-    
-    // Set timer to CTC (Clear Timer on Compare Match) mode
-    TCCR1B |= (1 << WGM12);
-    
-    // Set compare match register to get 50ms interval
-    // Assuming a 16MHz clock and a 1024 prescaler, calculate OCR1A value:
-    // Timer frequency = 16MHz/1024 = 15625Hz
-    // Interval = (1 / Frequency) * OCR1A = 50ms
-    // OCR1A = Frequency * Interval = 15625 * 0.05 = 781.25 ~ 781
-    OCR1A = 781;
-    
-    // Set CS10 and CS12 bits for 1024 prescaler
-    TCCR1B |= (1 << CS12) | (1 << CS10);
-    
-    // Enable timer compare interrupt
-    TIMSK1 |= (1 << OCIE1A);
-    
-    interrupts();
-}
-
-ISR(TIMER1_COMPA_vect) { // Timer1 interrupt service routine
-  if (wheel_running) 
-  {
-    if (blue_led_on) 
-    {
-        digitalWrite(BLUELED, LOW);
-    }
-    else 
-    {
-        digitalWrite(BLUELED, HIGH);
-    }
-    blue_led_on = !blue_led_on;
-  } 
-  else 
-  {
-    digitalWrite(BLUELED, LOW);
-  }
+    Ticker tickerObject(TickerFunc, 250);
+    tickerObject.start(); //start the ticker.
 }
 
 void Line_Follower::readAllLFSensors()
