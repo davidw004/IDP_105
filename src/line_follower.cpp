@@ -4,24 +4,16 @@
 bool wheel_running = false;    
 bool blue_led_on = false;
 
-void TickerFunc() 
-{ // Timer1 interrupt service routine
-  if (wheel_running) 
-  {
-    if (blue_led_on) 
+extern Ticker tickerObject;
+void TickerDelay(int ms)
+{
+    auto start = millis();
+    unsigned long end = start + ms;
+    while (start < end)
     {
-        digitalWrite(BLUELED, LOW);
+        tickerObject.update();
+        start = millis();
     }
-    else 
-    {
-        digitalWrite(BLUELED, HIGH);
-    }
-    blue_led_on = !blue_led_on;
-  } 
-  else 
-  {
-    digitalWrite(BLUELED, LOW);
-  }
 }
 
 Line_Follower::Line_Follower()
@@ -62,8 +54,8 @@ void Line_Follower::setup()
     _rightMotor = AFMS.getMotor(2);
     cubeRetrieval.setup();
 
-    Ticker tickerObject(TickerFunc, 250);
-    tickerObject.start(); //start the ticker.
+    // Ticker tickerObject(TickerFunc, 250);
+    // tickerObject.start(); //start the ticker.
 }
 
 void Line_Follower::readAllLFSensors()
@@ -103,7 +95,7 @@ void Line_Follower::exitbox()
 {
     cubeRetrieval.raiseClaw();
     //Turn LED on
-    digitalWrite(BLUELED, HIGH);
+    //digitalWrite(BLUELED, HIGH);
 
     //Run motors forwards
 
