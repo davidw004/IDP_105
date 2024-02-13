@@ -36,6 +36,7 @@ namespace Routes {
     extern Decision ReturnHomeFromRed[3];
     extern Decision ReturnHomeFromGreen[3];
 
+    extern Decision TestSwan[3];
 };
 //malloc
 //free

@@ -36,6 +36,7 @@ class Line_Follower {
         void stop();
         void ledsOff();
         void junction();
+        void swanTest();
 
     private:
         //Sensor values

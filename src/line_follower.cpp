@@ -90,6 +90,14 @@ void Line_Follower::exitbox()
     delay(_exitBoxTime);
 }
 
+void Line_Follower::swanTest()
+{
+    cubeRetrieval.raiseClaw();
+    //Turn LED on
+    digitalWrite(BLUELED, HIGH);
+    _currentRoute = Routes::TestSwan;
+}
+
 void Line_Follower::motorDrive(int lspeed, int rspeed)
 {
     _leftMotor -> setSpeed(abs(lspeed));
@@ -459,8 +467,8 @@ void Line_Follower::junction()
             stop();
 
             // turn to right on line for now:
-            if (_currentRoute == Routes::BringBlockSToRed) turn90(true, false);
-            else turn90(false, false);
+            if (_currentRoute == Routes::BringBlockSToRed) { leftTurn(); stop(); }
+            else { rightTurn(); stop(); }
             break;
         }
 
