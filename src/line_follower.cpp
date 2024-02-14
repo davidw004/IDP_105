@@ -24,26 +24,26 @@ Line_Follower::Line_Follower()
     //Speeds
     maxSpeed = 255;
     baseSpeed = 200;
-    turnSpeed = 125;
+    turnSpeed = 150;
     approachSpeed = 125;
     approachIndustrialSpeed = 175;
     baseSweepSpeed = 75;
 
-    _correctionFactor = 0.2;
+    _correctionFactor = 0.1;
     _continueDelay = 200;
     _turnDelay = 750;
     _correctionTime = 20;
-    _reverseTime = 300;
+    _reverseTime = 350;
     _exitBoxTime = 200;
     _timeFactor = 0.25;
     _commercialPrepare = 7500;
     appoachHomeDuration = 1000;
-    approachIndustrialDuration = 1650;
-    swanDist = 20.0f;
-    lucozadeDist = 20.0f;
+    approachIndustrialDuration = 2250;
+    swanDist = 25.0f;
+    lucozadeDist = 25.0f;
 
-    _currentRoute = Routes::CollectBlockOne; //changed to test
-    _blocksCollected = 0; //edited
+    _currentRoute = Routes::CollectBlockLFromGreen; //changed to test
+    _blocksCollected = 2; //edited
     pos = 0;
 }
 
@@ -321,7 +321,7 @@ void Line_Follower::turnFactory(int direction, bool leaving)
             TickerDelay(_turnDelay); //Delay to clear line for detection (not actually needed for wide sensor)
             while (_extremeLeftReading == 0) {tickerObject.update(); readAllLFSensors();}
         }
-        TickerDelay(300); //Small delay to straighten up
+        TickerDelay(270); //Small delay to straighten up
         stop();
     }
     else
