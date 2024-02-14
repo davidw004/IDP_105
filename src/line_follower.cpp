@@ -38,12 +38,13 @@ Line_Follower::Line_Follower()
     _timeFactor = 0.25;
     _commercialPrepare = 7500;
     appoachHomeDuration = 1000;
-    approachIndustrialDuration = 2250;
-    swanDist = 25.0f;
-    lucozadeDist = 25.0f;
+    approachSwanDuration = 2450;
+    approachLucozadeDuration = 2000;
+    swanDist = 30.0f;
+    lucozadeDist = 30.0f;
 
-    _currentRoute = Routes::CollectBlockLFromGreen; //changed to test
-    _blocksCollected = 2; //edited
+    _currentRoute = Routes::CollectBlockOne; //changed to test
+    _blocksCollected = 0; //edited
     pos = 0;
 }
 
@@ -280,7 +281,7 @@ void Line_Follower::turn180(int direction)
         TickerDelay(_turnDelay);
         //_turnStart = millis();
         readAllLFSensors();
-        while (_leftReading == 0)
+        while (_rightReading == 0)
         { //TIME TURN TO 90 DEGREES.
             tickerObject.update();
             readAllLFSensors();
@@ -292,7 +293,7 @@ void Line_Follower::turn180(int direction)
         TickerDelay(_turnDelay);
         //_turnStart = millis();
         readAllLFSensors();
-        while (_rightReading == 0)
+        while (_leftReading == 0)
         { //TIME TURN TO 90 DEGREES.
             tickerObject.update();
             readAllLFSensors();
@@ -321,7 +322,7 @@ void Line_Follower::turnFactory(int direction, bool leaving)
             TickerDelay(_turnDelay); //Delay to clear line for detection (not actually needed for wide sensor)
             while (_extremeLeftReading == 0) {tickerObject.update(); readAllLFSensors();}
         }
-        TickerDelay(270); //Small delay to straighten up
+        TickerDelay(250); //Small delay to straighten up
         stop();
     }
     else
@@ -335,7 +336,7 @@ void Line_Follower::turnFactory(int direction, bool leaving)
 void Line_Follower::approachCube(uint32_t duration) 
 {   
     //Currently just hard coding the distance from final turn to the block. Will likely need editing
-    straight(200, approachSpeed); //Clearing the white line to prevent junction detection when go() called
+    straight(400, approachSpeed); //Clearing the white line to prevent junction detection when go() called
     timedGo(duration, approachSpeed);
     stop();
 }
@@ -350,7 +351,7 @@ void Line_Follower::approachHome(float duration)
 }
 
 //From last junction, run this to collect cube from industrial
-void Line_Follower::enterIndustrial() 
+void Line_Follower::enterIndustrial(int duration, int durationPush) 
 {
     // drive forward until in front of factory
     while (TimeOfFlight.GetDistance() > swanDist)
@@ -359,7 +360,7 @@ void Line_Follower::enterIndustrial()
         tickerObject.update();
     }
     stop();
-    timedGo(approachIndustrialDuration, approachIndustrialSpeed); //Carry on driving forwards to reach centre of open section
+    timedGo(duration, approachIndustrialSpeed); //Carry on driving forwards to reach centre of open section
     stop();
         // drive past start of factory for pre-defined ms to position
 
@@ -367,14 +368,15 @@ void Line_Follower::enterIndustrial()
     turnFactory(RIGHTTURN, false);
     reverse(300, approachSpeed);
     cubeRetrieval.prepare();
-    straight(2000, approachSpeed); // drive to cube and push up against back section (against blocker?)            // pickup block
+    straight(durationPush, approachSpeed); // drive to cube and push up against back section (against blocker?)
     //Potential need to reverse small distance here
     stop();
-    cubeRetrieval.closeClaw(1000); //Close claw so ultrasound can detect cube type
-
     reverse(200, approachSpeed);
+    cubeRetrieval.closeClaw(4000); //Close claw so ultrasound can detect cube type
+
     TickerDelay(1000);
-    _blockHard = cubeRetrieval.pickUp();
+    _blockHard = cubeRetrieval.detectCube();
+    cubeRetrieval.raiseClaw();
     TickerDelay(2000);
 
     ledsOff();
@@ -426,11 +428,22 @@ void Line_Follower::junction()
         case BLOCK:
         {
             stop();
-            cubeRetrieval.prepare(); //7500 for commercial zone pickup, change to limit switch
+            
+            if (_blocksCollected == 0) 
+            {   
+                cubeRetrieval.prepare();
+                approachCube(1250); //note at slow speed
+            }
+            else if (_blocksCollected == 1)
+            {   
+                reverse(200, approachSpeed);
+                cubeRetrieval.prepare();
+                approachCube(1200);
+            }
 
-            if (_blocksCollected == 0) approachCube(1000); //note at slow speed
-            else if (_blocksCollected == 1) approachCube(1000);
-            _blockHard =  cubeRetrieval.pickUp();
+            _blockHard =  cubeRetrieval.detectCube();
+            reverse(100, approachSpeed);
+            cubeRetrieval.raiseClaw();
             //TickerDelay(2000);
             ledsOff();
 
@@ -480,12 +493,14 @@ void Line_Follower::junction()
                     else if (_currentRoute == Routes::BringBlockLToRed) _currentRoute = Routes::CollectBlockSFromRed;
                     else if (_currentRoute == Routes::BringBlockSToGreen) _currentRoute = Routes::CollectBlockLFromGreen;
                     else if (_currentRoute == Routes::BringBlockSToRed) _currentRoute = Routes::CollectBlockLFromRed;
+                    break;
                 }
 
                 case 4:
                 {
                     if (_blockHard) _currentRoute = Routes::ReturnHomeFromRed;
                     else _currentRoute = Routes::ReturnHomeFromGreen;
+                    break;
                 }
 
                 default:
@@ -511,7 +526,7 @@ void Line_Follower::junction()
 
         case ENTERSWAN:
         {   
-            enterIndustrial();
+            enterIndustrial(approachSwanDuration, 3550);
             _blocksCollected++;
             //Select route home based on current array and blockHard
             if (_blockHard) _currentRoute = Routes::BringBlockSToRed;
@@ -527,7 +542,7 @@ void Line_Follower::junction()
 
         case ENTERLUCOZADE:
         {
-            enterIndustrial();
+            enterIndustrial(approachLucozadeDuration, 3750);
             _blocksCollected++;
             //Select route home based on current array and blockHard
             if (_blockHard) _currentRoute = Routes::BringBlockLToRed;
@@ -539,6 +554,20 @@ void Line_Follower::junction()
             break;
         }
 
+        case STARTBOX:
+        {
+            timedGo(1000, baseSpeed);
+            readAllLFSensors();
+            while (_extremeLeftReading == 0 && _extremeRightReading == 0)
+            {
+                go();
+                readAllLFSensors();
+            }
+            motorDrive(approachSpeed, approachSpeed);
+            TickerDelay(1550);
+            while(true) stop();
+            break;
+        }
         default:
         {
             straight(_continueDelay, baseSpeed); //to clear junction for line line following

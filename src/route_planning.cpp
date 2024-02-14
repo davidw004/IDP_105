@@ -34,7 +34,7 @@ namespace Routes {
 
     //Back to home boxes
     Decision ReturnHomeFromRed[3] = {LEFT, LEFT, STARTBOX};
-    Decision ReturnHomeFromGreen[3] = {RIGHT, RIGHT, STARTBOX};
+    Decision ReturnHomeFromGreen[4] = {RIGHT, STRAIGHT, RIGHT, STARTBOX};
 
     //Test routes
     Decision TestSwan[2] = {RIGHT, ENTERSWAN};

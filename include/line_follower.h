@@ -34,7 +34,7 @@ class Line_Follower {
         void turnFactory(int direction, bool OnJunction);
         void approachCube(uint32_t duration);
         void approachHome(float duration);
-        void enterIndustrial();
+        void enterIndustrial(int duration, int durationPush);
         void reverseToLine();
         void stop();
         void ledsOff();
@@ -66,7 +66,8 @@ class Line_Follower {
         uint8_t _timeFactor;
         uint32_t _turnDelay, _continueDelay;
         uint32_t appoachHomeDuration;
-        uint32_t approachIndustrialDuration;
+        uint32_t approachSwanDuration;
+        uint32_t approachLucozadeDuration;
         
         //Block detection and decision making
         bool _blockHard;

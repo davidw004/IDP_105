@@ -34,7 +34,7 @@ namespace Routes {
 
     //Back to home boxes
     extern Decision ReturnHomeFromRed[3];
-    extern Decision ReturnHomeFromGreen[3];
+    extern Decision ReturnHomeFromGreen[4];
 
     extern Decision TestSwan[2];
 };

@@ -20,19 +20,6 @@ void Cube_Retrieval::setup()
     AFMS.begin();
 }
 
-//Code to detect block then pickup block
-bool Cube_Retrieval::pickUp()
-{   
-    //logic to detect cube and display LEDs
-    _blockType = detectCube();
-    if (_blockType == HARDBLOCK) digitalWrite(REDLED, HIGH);
-    else digitalWrite(GREENLED, HIGH);
-
-    //Pick up block
-    raiseClaw();
-    return _blockType;
-}
-
 /*void Cube_Retrieval::test()
 {
     _clawMotor -> setSpeed(baseSpeed);
@@ -89,8 +76,8 @@ void Cube_Retrieval::closeClaw(int duration)
 //Detect cube type
 bool Cube_Retrieval::detectCube() 
 {
-    if (readUltrasound() < 5) return HARDBLOCK;
-    else return SOFTBLOCK;
+    if (readUltrasound() < 6) {digitalWrite(REDLED, HIGH); return HARDBLOCK;}
+    else {digitalWrite(GREENLED, HIGH); return SOFTBLOCK;}
 }
 
 //Drop cube into home section
