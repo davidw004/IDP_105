@@ -38,8 +38,8 @@ Line_Follower::Line_Follower()
     _timeFactor = 0.25;
     _commercialPrepare = 7500;
     appoachHomeDuration = 1000;
-    approachSwanDuration = 2450;
-    approachLucozadeDuration = 2000;
+    approachSwanDuration = 2300;
+    approachLucozadeDuration = 2200;
     swanDist = 30.0f;
     lucozadeDist = 30.0f;
 
@@ -299,7 +299,7 @@ void Line_Follower::turn180(int direction)
             readAllLFSensors();
         }
     }
-    
+    //TickerDelay(50);
     //_turnMid = millis();
     //TickerDelay((_turnMid - _turnStart)); //CONTINUES TURN FOR SAME TIME IT TOOK TO REACH 90 DEGREES
     stop();
@@ -322,12 +322,12 @@ void Line_Follower::turnFactory(int direction, bool leaving)
             TickerDelay(_turnDelay); //Delay to clear line for detection (not actually needed for wide sensor)
             while (_extremeLeftReading == 0) {tickerObject.update(); readAllLFSensors();}
         }
-        TickerDelay(250); //Small delay to straighten up
+        TickerDelay(200); //Small delay to straighten up
         stop();
     }
     else
     {
-        if (direction == LEFTTURN) {leftTurn(); stop();} //WHen leaving can use normal left turn
+        if (direction == LEFTTURN) {leftTurn(); stop();} //When leaving can use normal left turn
         else rightTurn(); stop();
     }
 }
@@ -376,6 +376,7 @@ void Line_Follower::enterIndustrial(int duration, int durationPush)
 
     TickerDelay(1000);
     _blockHard = cubeRetrieval.detectCube();
+    reverse(150, approachSpeed);
     cubeRetrieval.raiseClaw();
     TickerDelay(2000);
 
@@ -442,11 +443,11 @@ void Line_Follower::junction()
             }
 
             _blockHard =  cubeRetrieval.detectCube();
-            reverse(100, approachSpeed);
+            reverse(200, approachSpeed);
             cubeRetrieval.raiseClaw();
-            //TickerDelay(2000);
+            TickerDelay(2000);
             ledsOff();
-
+            straight(300, approachSpeed);
             _blocksCollected++;
             //Select route home based on current array and blockHard
             if (_blockHard)
@@ -514,6 +515,7 @@ void Line_Follower::junction()
             stop();
 
             cubeRetrieval.raiseClaw(); //Lift claw
+            straight(700, approachSpeed);
 
             if (_blockHard) //Depending on which side, turn 180
             {
@@ -542,7 +544,7 @@ void Line_Follower::junction()
 
         case ENTERLUCOZADE:
         {
-            enterIndustrial(approachLucozadeDuration, 3750);
+            enterIndustrial(approachLucozadeDuration, 3950);
             _blocksCollected++;
             //Select route home based on current array and blockHard
             if (_blockHard) _currentRoute = Routes::BringBlockLToRed;
