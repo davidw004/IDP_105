@@ -1,15 +1,50 @@
 #include <Arduino.h>
 #include "line_follower.h"
+#include "cube_retrieval.h"
+#include <Ticker.h>
+
+Line_Follower robot;
+//Cube_Retrieval cube;
+//TOFSensor timeOF;
+
+extern bool blue_led_on;
+extern bool wheel_running;
+
+void TickerFunc() 
+{ // Timer1 interrupt service routine
+  if (wheel_running) 
+  {
+    if (blue_led_on) 
+    {
+        digitalWrite(BLUELED, LOW);
+    }
+    else 
+    {
+        digitalWrite(BLUELED, HIGH);
+    }
+    blue_led_on = !blue_led_on;
+  } 
+  else 
+  {
+    digitalWrite(BLUELED, LOW);
+  }
+}
+Ticker tickerObject(TickerFunc, 250);
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(9600);
-  Line_Follower robot(6,5,75);
-  //pinMode(13, OUTPUT);          // sets the digital pin 13 as output
-
+  robot.setup();
+  //cube.setup();
+  //timeOF.Setup();
+  while (digitalRead(BUTTON1) != 1)
+  {
+    delay(50);
+  }
+  tickerObject.start();
+  robot.exitbox();
 }
-
-void loop() {
-  // put your main code here, to run repeatedly:
-
+void loop()
+{
+  tickerObject.update();
+  robot.go();
 }
